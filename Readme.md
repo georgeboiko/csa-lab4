@@ -48,7 +48,7 @@ c-строки
 <condition_body> ::= { <command> }
 
 <stack_operation> ::= "rot" | "over" | "dup" | "drop" | "swap"
-<number_operation> ::= "+" | "-" | "*" | "/" | "mod" | "/mod"
+<number_operation> ::= "+" | "-" | "*" | "/" | "mod"
 <compare_operator> ::= "=" | "<" | ">"
 <logical_operator> ::= "and" | "or" | "xor" | "not"
 <io_operation> ::= "key" | "emit"
@@ -60,3 +60,5 @@ c-строки
 <letter> ::= "a" | "b" | "c" | ... | "z" | "A" | "B" | "C" | ... | "Z"
 <digit> ::= "0" | "1" | "2" | ... | "9"
 ```
+
+формат инструкции - 1 байт опкод, 3 байта операнд

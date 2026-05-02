@@ -50,5 +50,8 @@ class Opcode(str, Enum):
     RET = "ret"
     IRET = "iret"
 
+    def __str__(self):
+        return str(self.value)
+
 opcode_to_binary = {op: i for i, op in enumerate(Opcode)}
 binary_to_opcode = {i: op for i, op in enumerate(Opcode)}
