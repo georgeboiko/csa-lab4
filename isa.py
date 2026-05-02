@@ -7,7 +7,7 @@ class Opcode(str, Enum):
     LOAD_IMM = "load_imm"
     LOAD_ACC = "load_acc"
     STORE = "store"
-    STORE_IND_SP = "store_ind_sp"
+    STORE_IND = "store_ind"
 
     LOAD_SP = "load_sp"
     STORE_SP = "store_sp"
@@ -49,3 +49,6 @@ class Opcode(str, Enum):
     CALL_ACC = "call_acc"
     RET = "ret"
     IRET = "iret"
+
+opcode_to_binary = {op: i for i, op in enumerate(Opcode)}
+binary_to_opcode = {i: op for i, op in enumerate(Opcode)}

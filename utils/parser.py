@@ -1,4 +1,4 @@
-from ast_nodes import *
+from utils.ast_nodes import *
 
 class Parser:
 

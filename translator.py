@@ -1,6 +1,8 @@
 import os, sys, re
 
-from parser import Parser
+from utils.parser import Parser
+
+from isa import *
 
 def parse_tokens(source):
     """
@@ -41,6 +43,7 @@ def main(source, target):
 
     code = translate(source)
     print(code)
+
     #binary_code = to_bytes(code)
     #hex_code = to_hex(code)
 
