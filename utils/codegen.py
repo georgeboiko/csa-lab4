@@ -274,8 +274,6 @@ class CodeGenerator:
         else:
             raise Exception(f"Ошибка: Неизвестное слово '{word}'")
 
-
-
     def math_helper(self, operation: Opcode):
         self.add_instruction(Opcode.LOAD_SP)
         self.add_instruction(Opcode.STORE, 0)
@@ -309,3 +307,27 @@ class CodeGenerator:
 
 
     
+    def resolve_labels(self):
+        resolved_code = []
+        labels_map = {}
+        
+        current_address = 0
+        for instr in self.code:
+            if instr["opcode"] == "LABEL":
+                labels_map[instr["arg"]] = current_address
+            else:
+                current_address += 1
+                
+        for instr in self.code:
+            if instr["opcode"] == "LABEL":
+                continue 
+                
+            arg = instr["arg"]
+            if isinstance(arg, str) and arg.startswith("."):
+                if arg not in labels_map:
+                    raise Exception(f"Линкер: Неизвестная метка перехода '{arg}'")
+                arg = labels_map[arg]
+                
+            resolved_code.append({"opcode": instr["opcode"], "arg": arg})
+            
+        self.code = resolved_code
