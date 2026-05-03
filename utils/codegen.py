@@ -2,12 +2,22 @@ from isa import Opcode
 from utils.ast_nodes import *
 
 class CodeGenerator:
+
+    TEMP0_ADDR = 0
+    TEMP1_ADDR = 1
+    INPUT_ADDR = 2
+    OUTPUT_ADDR = 3
     
     def __init__(self):
         self.code = []
         self.data_memory = [0] * 8192
 
-        self.data_ptr = 1   # 0 адрес зарезервирован под temp 
+        """
+        0, 1 адреса зарезервированы под temp
+        2, 3 - под memory mapped io
+        """
+
+        self.data_ptr = 4
 
         self.variables = {}
         self.functions = {}
@@ -81,9 +91,9 @@ class CodeGenerator:
             self.data_memory[self.data_ptr] = 0
             self.data_ptr += 1
             
-            self.emit(Opcode.LOAD_IMM, str_start_addr)
-            self.emit(Opcode.INC_SP)
-            self.emit(Opcode.STORE_SP)
+            self.add_instruction(Opcode.LOAD_IMM, str_start_addr)
+            self.add_instruction(Opcode.INC_SP)
+            self.add_instruction(Opcode.STORE_SP)
 
         elif isinstance(node, LoopNode):
             self.label_counter += 1
@@ -136,10 +146,10 @@ class CodeGenerator:
 
         elif word == "+":
             self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.STORE, 0)
+            self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
             self.add_instruction(Opcode.DEC_SP)
             self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.ADD, 0)
+            self.add_instruction(Opcode.ADD, self.TEMP0_ADDR)
             self.add_instruction(Opcode.STORE_SP)
 
         elif word == "+":
@@ -188,16 +198,75 @@ class CodeGenerator:
 
         elif word == "swap":
             self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.STORE, 0)
+            self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
             self.add_instruction(Opcode.DEC_SP)
             self.add_instruction(Opcode.LOAD_SP)
             self.add_instruction(Opcode.INC_SP)
             self.add_instruction(Opcode.STORE_SP)
             self.add_instruction(Opcode.DEC_SP)
-            self.add_instruction(Opcode.LOAD, 0)
+            self.add_instruction(Opcode.LOAD, self.TEMP0_ADDR)
             self.add_instruction(Opcode.STORE_SP)
             self.add_instruction(Opcode.INC_SP)
         
+        elif word == "rot":
+            self.add_instruction(Opcode.LOAD_SP)
+            self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
+            self.add_instruction(Opcode.DEC_SP)
+            self.add_instruction(Opcode.LOAD_SP)
+            self.add_instruction(Opcode.STORE, self.TEMP1_ADDR)
+            self.add_instruction(Opcode.DEC_SP)
+            self.add_instruction(Opcode.LOAD_SP)
+            self.add_instruction(Opcode.INC_SP)
+            self.add_instruction(Opcode.INC_SP)
+            self.add_instruction(Opcode.STORE_SP)
+            self.add_instruction(Opcode.LOAD, self.TEMP0_ADDR)
+            self.add_instruction(Opcode.DEC_SP)
+            self.add_instruction(Opcode.STORE_SP)
+            self.add_instruction(Opcode.LOAD, self.TEMP1_ADDR)
+            self.add_instruction(Opcode.DEC_SP)
+            self.add_instruction(Opcode.STORE_SP)
+            self.add_instruction(Opcode.INC_SP)
+            self.add_instruction(Opcode.INC_SP)
+
+        elif word == "=":
+            self.compare_helper(Opcode.BEQZ)
+
+        elif word == "<":
+            self.compare_helper(Opcode.BLTZ)
+
+        elif word == ">":
+            self.compare_helper(Opcode.BGTZ)
+
+        elif word == "@":
+            self.add_instruction(Opcode.LOAD_SP)
+            self.add_instruction(Opcode.LOAD_ACC)
+            self.add_instruction(Opcode.STORE_SP)
+
+        elif word == "!":
+            self.add_instruction(Opcode.DEC_SP)
+            self.add_instruction(Opcode.LOAD_SP)
+            self.add_instruction(Opcode.INC_SP)
+            self.add_instruction(Opcode.STORE_IND_SP)
+            self.add_instruction(Opcode.DEC_SP)
+            self.add_instruction(Opcode.DEC_SP)
+
+        elif word == "emit":
+            self.add_instruction(Opcode.LOAD_SP)
+            self.add_instruction(Opcode.DEC_SP)
+            self.add_instruction(Opcode.STORE, self.OUTPUT_ADDR)
+
+        elif word == "key":
+            self.add_instruction(Opcode.LOAD, self.INPUT_ADDR)
+            self.add_instruction(Opcode.INC_SP)
+            self.add_instruction(Opcode.STORE_SP)
+
+        elif word == "execute":
+            self.add_instruction(Opcode.LOAD_SP)
+            self.add_instruction(Opcode.DEC_SP)
+            self.add_instruction(Opcode.CALL_ACC)
+        
+            
+    
         # TODO: other commands & linker
 
         else:
@@ -212,3 +281,29 @@ class CodeGenerator:
         self.add_instruction(Opcode.LOAD_SP)
         self.add_instruction(operation, 0)
         self.add_instruction(Opcode.STORE_SP)
+
+    def compare_helper(self, jump_opcode: Opcode):
+        self.label_counter += 1
+        true_lbl = self.get_label("cmp_true", str(self.label_counter))
+        self.label_counter += 1
+        end_lbl = self.get_label("cmp_end", str(self.label_counter))
+
+        self.add_instruction(Opcode.LOAD_SP)
+        self.add_instruction(Opcode.STORE, 0)
+        self.add_instruction(Opcode.DEC_SP)
+        self.add_instruction(Opcode.LOAD_SP)
+        self.add_instruction(Opcode.SUB, 0)
+
+        self.add_instruction(jump_opcode, true_lbl)
+
+        self.add_instruction(Opcode.LOAD_IMM, 0)
+        self.add_instruction(Opcode.JUMP, end_lbl)
+
+        self.add_temp_label(true_lbl)
+        self.add_instruction(Opcode.LOAD_IMM, 1)
+
+        self.add_temp_label(end_lbl)
+        self.add_instruction(Opcode.STORE_SP)
+
+
+    
