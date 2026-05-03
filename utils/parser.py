@@ -99,7 +99,11 @@ class Parser:
                     false_branch = self.parse_block()
                 
                 self.expect("endif")
-                nodes.append(IfNode(true_branch, false_branch))            
+                nodes.append(IfNode(true_branch, false_branch))       
+
+            elif token == "'":
+                func_name = self.read_and_validate_name("функции")
+                nodes.append(TickNode(func_name)) 
 
             else:
                 try:

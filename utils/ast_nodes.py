@@ -39,3 +39,7 @@ class IfNode(Node):
 @dataclass
 class LoopNode(Node):
     body: List[Node]
+
+@dataclass
+class TickNode(Node):
+    name: str

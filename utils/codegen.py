@@ -131,6 +131,12 @@ class CodeGenerator:
                     
             self.add_temp_label(end_label)
 
+        elif isinstance(node, TickNode):
+            func_label = self.functions[node.func_name]
+            self.add_instruction(Opcode.LOAD_IMM, func_label)
+            self.add_instruction(Opcode.INC_SP)
+            self.add_instruction(Opcode.STORE_SP)
+
         elif isinstance(node, WordNode):
             self.compile_word(node.name)
 
@@ -263,9 +269,7 @@ class CodeGenerator:
         elif word == "execute":
             self.add_instruction(Opcode.LOAD_SP)
             self.add_instruction(Opcode.DEC_SP)
-            self.add_instruction(Opcode.CALL_ACC)
-        
-            
+            self.add_instruction(Opcode.CALL_ACC)            
     
         # TODO: other commands & linker
 
