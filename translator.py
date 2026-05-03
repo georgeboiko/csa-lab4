@@ -38,39 +38,40 @@ def translate(source):
 
 
 
-def main(source, target):
+def main(source, target, memory_target):
     """Функция запуска транслятора. Параметры -- исходный и целевой файлы."""
     with open(source, encoding="utf-8") as f:
         source = f.read()
 
     code, memory = translate(source)
-    for instr in code:
-        print(instr)
-    print(memory[0:100], memory[8100:8191])
+    # for instr in code:
+    #     print(instr)
+    # print(memory[0:100], memory[8100:8191])
 
-    #binary_code = to_bytes(code)
-    #hex_code = to_hex(code)
+    binary_code = to_bytes(code)
+    hex_code = to_hex(code)
 
-    # Убедимся, что каталог назначения существует
-    #os.makedirs(os.path.dirname(os.path.abspath(target)) or ".", exist_ok=True)
+    memory = to_bytes_memory(memory)
+    hex_memory = to_hex_memory(memory)
 
-    # # Запишим выходные файлы
-    # if target.endswith(".bin"):
-    #     with open(target, "wb") as f:
-    #         f.write(binary_code)
-    #     with open(target + ".hex", "w") as f:
-    #         f.write(hex_code)
-    # else:
-    #    write_json(target, code)
+    os.makedirs(os.path.dirname(os.path.abspath(target)) or ".", exist_ok=True)
 
-    # Обратите внимание, что память данных не экспортируется в файл, так как
-    # в случае brainfuck она может быть инициализирована только 0.
-    #print("source LoC:", len(source.split("\n")), "code instr:", len(code))
+    if target.endswith(".bin"):
+        with open(target, "wb") as f:
+            f.write(binary_code)
+        with open(target + ".hex", "w") as f:
+            f.write(hex_code)
+        with open(memory_target, "wb") as f:
+            f.write(memory)
+        with open(memory_target + ".hex", "w") as f:
+            f.write(hex_memory)
+    else:
+       write_json(target, code)
+
+    print("source LoC:", len(source.split("\n")), "code instr:", len(code))
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 3, "Wrong arguments: translator.py <input_file> <target_file>"
-    _, source, target = sys.argv
-    # source = "test.forth"
-    # target = "out.bin"
-    main(source, target)
+    assert len(sys.argv) == 4, "Wrong arguments: translator.py <input_file> <target_file> <memory_file>"
+    _, source, target, memory_target = sys.argv
+    main(source, target, memory_target)
