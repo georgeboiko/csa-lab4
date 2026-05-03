@@ -1,3 +1,5 @@
+"proverka"
+
 : square 
     dup *
 ;
@@ -7,3 +9,7 @@ variable cur \объявили переменную
 а тут мы прочитали значение по адресу cur
 возвели в квадрат и сохранили в cur)
 cur @ square cur !
+
+"test string"
+
+"abacaba"

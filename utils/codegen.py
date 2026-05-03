@@ -151,14 +151,6 @@ class CodeGenerator:
             self.add_instruction(Opcode.STORE_SP)
 
         elif word == "+":
-            self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
-            self.add_instruction(Opcode.DEC_SP)
-            self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.ADD, self.TEMP0_ADDR)
-            self.add_instruction(Opcode.STORE_SP)
-
-        elif word == "+":
             self.math_helper(Opcode.ADD)
         
         elif word == "-":

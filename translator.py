@@ -44,8 +44,9 @@ def main(source, target):
         source = f.read()
 
     code, memory = translate(source)
-    print(code)
-    print(memory)
+    for instr in code:
+        print(instr)
+    print(memory[0:100], memory[8100:8191])
 
     #binary_code = to_bytes(code)
     #hex_code = to_hex(code)
@@ -70,4 +71,6 @@ def main(source, target):
 if __name__ == "__main__":
     assert len(sys.argv) == 3, "Wrong arguments: translator.py <input_file> <target_file>"
     _, source, target = sys.argv
+    # source = "test.forth"
+    # target = "out.bin"
     main(source, target)
