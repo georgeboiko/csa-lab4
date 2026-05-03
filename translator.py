@@ -1,6 +1,7 @@
 import os, sys, re
 
 from utils.parser import Parser
+from utils.codegen import CodeGenerator
 
 from isa import *
 
@@ -32,7 +33,8 @@ def translate(source):
     
     tokens = parse_tokens(source)
     tree = parse_syntax(tokens)
-    return tree
+    code, memory = CodeGenerator().generate(tree)
+    return code, memory
 
 
 
@@ -41,8 +43,9 @@ def main(source, target):
     with open(source, encoding="utf-8") as f:
         source = f.read()
 
-    code = translate(source)
+    code, memory = translate(source)
     print(code)
+    print(memory)
 
     #binary_code = to_bytes(code)
     #hex_code = to_hex(code)

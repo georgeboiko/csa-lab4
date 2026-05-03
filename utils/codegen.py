@@ -34,8 +34,8 @@ class CodeGenerator:
         self.code.append({"opcode": "LABEL", "arg": name})
 
     def generate(self, ast: List[Node]):
-        start_label = self.get_label("start")
-        self.add_instruction(Opcode.JMP, start_label)
+        start_label = self.get_label("start", self.label_counter)
+        self.add_instruction(Opcode.JUMP, start_label)
 
         for node in ast:
             if isinstance(node, (FuncDefNode, IsrDefNode)):
@@ -249,11 +249,11 @@ class CodeGenerator:
             self.add_instruction(Opcode.STORE_SP)
 
         elif word == "!":
+            self.add_instruction(Opcode.LOAD_SP)
+            self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
             self.add_instruction(Opcode.DEC_SP)
             self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.INC_SP)
-            self.add_instruction(Opcode.STORE_IND_SP)
-            self.add_instruction(Opcode.DEC_SP)
+            self.add_instruction(Opcode.STORE_IND, self.TEMP0_ADDR)
             self.add_instruction(Opcode.DEC_SP)
 
         elif word == "emit":
@@ -271,8 +271,6 @@ class CodeGenerator:
             self.add_instruction(Opcode.DEC_SP)
             self.add_instruction(Opcode.CALL_ACC)            
     
-        # TODO: other commands & linker
-
         else:
             raise Exception(f"Ошибка: Неизвестное слово '{word}'")
 
