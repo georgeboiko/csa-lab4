@@ -51,7 +51,7 @@ def main(source, target, memory_target):
     binary_code = to_bytes(code)
     hex_code = to_hex(code)
 
-    memory = to_bytes_memory(memory)
+    binary_memory = to_bytes_memory(memory)
     hex_memory = to_hex_memory(memory)
 
     os.makedirs(os.path.dirname(os.path.abspath(target)) or ".", exist_ok=True)
@@ -62,7 +62,7 @@ def main(source, target, memory_target):
         with open(target + ".hex", "w") as f:
             f.write(hex_code)
         with open(memory_target, "wb") as f:
-            f.write(memory)
+            f.write(binary_memory)
         with open(memory_target + ".hex", "w") as f:
             f.write(hex_memory)
     else:
@@ -72,6 +72,9 @@ def main(source, target, memory_target):
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 4, "Wrong arguments: translator.py <input_file> <target_file> <memory_file>"
-    _, source, target, memory_target = sys.argv
+    #assert len(sys.argv) == 4, "Wrong arguments: translator.py <input_file> <target_file> <memory_file>"
+    #_, source, target, memory_target = sys.argv
+    source = "test.forth"
+    target = "out.bin"
+    memory_target = "mem.bin"
     main(source, target, memory_target)

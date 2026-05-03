@@ -126,7 +126,7 @@ def to_hex_memory(memory: list[int]) -> str:
             break
 
         word = (binary_memory[i] << 24) | (binary_memory[i+1] << 16) | (binary_memory[i+2] << 8) | binary_memory[i+3]
-        result.append(f"{i:04} - {word:08X}")
+        result.append(f"{(i // 4):04} - {word:08X}")
 
     return "\n".join(result)
 
