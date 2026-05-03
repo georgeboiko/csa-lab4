@@ -55,6 +55,8 @@ def main(source, target, memory_target):
     hex_memory = to_hex_memory(memory)
 
     os.makedirs(os.path.dirname(os.path.abspath(target)) or ".", exist_ok=True)
+    os.makedirs(os.path.dirname(os.path.abspath(memory_target)) or ".", exist_ok=True)
+
 
     if target.endswith(".bin"):
         with open(target, "wb") as f:
@@ -66,15 +68,12 @@ def main(source, target, memory_target):
         with open(memory_target + ".hex", "w") as f:
             f.write(hex_memory)
     else:
-       write_json(target, code)
+       write_json(target, memory_target, code, memory)
 
     print("source LoC:", len(source.split("\n")), "code instr:", len(code))
 
 
 if __name__ == "__main__":
-    #assert len(sys.argv) == 4, "Wrong arguments: translator.py <input_file> <target_file> <memory_file>"
-    #_, source, target, memory_target = sys.argv
-    source = "test.forth"
-    target = "out.bin"
-    memory_target = "mem.bin"
+    assert len(sys.argv) == 4, "Wrong arguments: translator.py <input_file> <target_file> <memory_file>"
+    _, source, target, memory_target = sys.argv
     main(source, target, memory_target)

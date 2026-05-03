@@ -187,11 +187,11 @@ def from_bytes(binary_code: bytes) -> list[dict]:
     return structured_code
 
 
-def write_json(filename: str, code: list[dict], memory: list[int]):
+def write_json(code_file: str, memory_file: str, code: list[dict], memory: list[int]):
     """Сериализация в JSON."""
-    with open(filename, "w", encoding="utf-8") as file:
+    with open(code_file, "w", encoding="utf-8") as file:
         buf = [json.dumps(instr) for instr in code]
         file.write("[\n  " + ",\n  ".join(buf) + "\n]")
-    with open(filename + ".mem", "w", encoding="utf-8") as file:
-        buf = [json.dumps(val) for val in memory]
+    with open(memory_file, "w", encoding="utf-8") as file:
+        buf = [f'{{"{idx}": {json.dumps(val)}}}' for idx, val in enumerate(memory)]
         file.write("[\n  " + ",\n  ".join(buf) + "\n]")
