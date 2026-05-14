@@ -8,7 +8,7 @@ class Parser:
         ":", ";", ":isr", "variable", "begin", "until",
         "if", "else", "endif", "recursive",
         "rot", "over", "dup", "drop", "swap", 
-        "+", "-", "*", "/", "mod", "/mod", "=", "<", ">",
+        "+", "-", "*", "/", "mod", "=", "<", ">",
         "and", "or", "xor", "not", "key", "emit", "@", "!", "'", "execute"
     ]
 

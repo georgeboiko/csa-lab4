@@ -34,17 +34,32 @@ class CodeGenerator:
         self.code.append({"opcode": "LABEL", "arg": name})
 
     def generate(self, ast: List[Node]):
+        # регистрируем резервируем адреса в памяти данных под все переменные
+        for node in ast:
+            if isinstance(node, VariableDefNode):
+                self.variables[node.name] = self.data_ptr
+                self.data_ptr += 1
+
+        # регистрируем имена всех функций и обработчиков прерываний (без компиляции тел)
+        for node in ast:
+            if isinstance(node, FuncDefNode):
+                self.functions[node.name] = self.get_label("func", node.name)
+            elif isinstance(node, IsrDefNode):
+                self.functions[node.name] = self.get_label("isr", node.name)
+
         start_label = self.get_label("start", self.label_counter)
         self.add_instruction(Opcode.JUMP, start_label)
 
+        # компилируем тела функций и обработчиков прерываний
         for node in ast:
             if isinstance(node, (FuncDefNode, IsrDefNode)):
                 self.visit(node)
-                
+
         self.add_temp_label(start_label)
-        
+
+        # компилируем основной код
         for node in ast:
-            if not isinstance(node, (FuncDefNode, IsrDefNode)):
+            if not isinstance(node, (FuncDefNode, IsrDefNode, VariableDefNode)):
                 self.visit(node)
 
         self.add_instruction(Opcode.HALT)
@@ -53,22 +68,25 @@ class CodeGenerator:
         return self.code, self.data_memory
 
     def visit(self, node: Node):
-        if isinstance(node, VariableDefNode):
-            self.variables[node.name] = self.data_ptr
-            self.data_ptr += 1
-        
-        elif isinstance(node, FuncDefNode):
-            label = self.get_label("func", node.name)
-            self.functions[node.name] = label
+        if isinstance(node, FuncDefNode):
+            label = self.functions[node.name]
             self.add_temp_label(label)
+
+            # если функция не рекурсивная — скрываем её имя при компиляции тела,
+            # чтобы вызов самой себя внутри тела был ошибкой
+            if not node.is_recursive:
+                del self.functions[node.name]
 
             for child in node.body:
                 self.visit(child)
+
+            if not node.is_recursive:
+                self.functions[node.name] = label
             
             self.add_instruction(Opcode.RET)
 
         elif isinstance(node, IsrDefNode):
-            label = self.get_label("isr", node.name)
+            label = self.functions[node.name]
             self.add_temp_label(label)
 
             for child in node.body:
@@ -132,7 +150,7 @@ class CodeGenerator:
             self.add_temp_label(end_label)
 
         elif isinstance(node, TickNode):
-            func_label = self.functions[node.func_name]
+            func_label = self.functions[node.name]
             self.add_instruction(Opcode.LOAD_IMM, func_label)
             self.add_instruction(Opcode.INC_SP)
             self.add_instruction(Opcode.STORE_SP)
@@ -268,10 +286,10 @@ class CodeGenerator:
 
     def math_helper(self, operation: Opcode):
         self.add_instruction(Opcode.LOAD_SP)
-        self.add_instruction(Opcode.STORE, 0)
+        self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
         self.add_instruction(Opcode.DEC_SP)
         self.add_instruction(Opcode.LOAD_SP)
-        self.add_instruction(operation, 0)
+        self.add_instruction(operation, self.TEMP0_ADDR)
         self.add_instruction(Opcode.STORE_SP)
 
     def compare_helper(self, jump_opcode: Opcode):
@@ -281,10 +299,10 @@ class CodeGenerator:
         end_lbl = self.get_label("cmp_end", str(self.label_counter))
 
         self.add_instruction(Opcode.LOAD_SP)
-        self.add_instruction(Opcode.STORE, 0)
+        self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
         self.add_instruction(Opcode.DEC_SP)
         self.add_instruction(Opcode.LOAD_SP)
-        self.add_instruction(Opcode.SUB, 0)
+        self.add_instruction(Opcode.SUB, self.TEMP0_ADDR)
 
         self.add_instruction(jump_opcode, true_lbl)
 
