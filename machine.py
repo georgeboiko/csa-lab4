@@ -33,15 +33,12 @@
 """
 
 import json
-import logging
 import sys
 
 from config import *
 from isa import from_bytes
 from datapath import DataPath
 from control_unit import ControlUnit
-
-logger = logging.getLogger(__name__)
 
 def simulation(
     code: list[dict],

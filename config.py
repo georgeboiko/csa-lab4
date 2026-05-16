@@ -1,3 +1,5 @@
+import logging
+
 IVT_INPUT_ADDR = 0
 INPUT_ADDR = 3
 OUTPUT_ADDR = 4
@@ -17,3 +19,5 @@ def to_signed32(val: int) -> int:
     if val & SIGN32:
         return val - (1 << 32)
     return val
+
+logger = logging.getLogger(__name__)
