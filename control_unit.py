@@ -1,6 +1,6 @@
 from datapath import DataPath
+from config import *
 from isa import Opcode
-from machine import *
 
 
 class ControlUnit:
@@ -522,7 +522,7 @@ class ControlUnit:
                 int(dp.flag_zero),
                 int(dp.flag_overflow),
                 int(dp.flag_carry),
-                len(self._return_stack),
+                len(self.dp._return_stack),
                 shadow_info,
             )
         )

@@ -36,30 +36,12 @@ import json
 import logging
 import sys
 
+from config import *
 from isa import from_bytes
+from datapath import DataPath
+from control_unit import ControlUnit
 
 logger = logging.getLogger(__name__)
-
-IVT_INPUT_ADDR = 0
-INPUT_ADDR = 3
-OUTPUT_ADDR = 4
-ISR_ACC_ADDR = 5
-
-DATA_MEMORY_SIZE = 8192
-
-INITIAL_SP = DATA_MEMORY_SIZE - 1
-
-RETURN_STACK_SIZE = 256
-
-MASK32 = 0xFFFFFFFF
-SIGN32 = 0x80000000
-
-
-def to_signed32(val: int) -> int:
-    val &= MASK32
-    if val & SIGN32:
-        return val - (1 << 32)
-    return val
 
 def simulation(
     code: list[dict],
@@ -68,7 +50,69 @@ def simulation(
     limit: int = 10_000_000,
     superscalar: bool = True,
 ) -> tuple[list[int], int]:
-    return [], 0
+    dp = DataPath(data_memory)
+    cu = ControlUnit(code, dp, superscalar=superscalar)
+    logger.debug("Superscalar mode: %s", "ON" if superscalar else "OFF")
+
+    # Читаем адрес ISR из таблицы векторов прерываний (mem[IVT_INPUT_ADDR]).
+    isr_addr: int | None = dp.data_memory[IVT_INPUT_ADDR] or None
+    if isr_addr is not None:
+        cu.enable_interrupts()
+        logger.debug("Trap mode: ISR addr=%d (from IVT[0])", isr_addr)
+
+    _SEP = "─" * 72
+    logger.debug("%s\n%s", _SEP, cu)
+    try:
+        while cu.current_tick() < limit:
+            # Trap-based IO: проверяем расписание прерываний.
+            # Прерывание вызывается когда:
+            #   - наступил запланированный такт
+            #   - прерывания разрешены
+            #   - нет уже ожидающего прерывания
+            if (
+                isr_addr is not None
+                and input_schedule
+                and cu.current_tick() >= input_schedule[0][0]
+                and cu._interrupts_enabled
+                and not cu._interrupt_pending
+            ):
+                sched_tick, char = input_schedule.pop(0)
+                dp.data_memory[INPUT_ADDR] = char
+                ch = chr(char) if 32 <= char < 127 else f"\\x{char:02x}"
+                logger.debug(
+                    "  [TRAP] tick=%d (scheduled=%d) char=%d (%r) -> mem[%d], ISR@%d",
+                    cu.current_tick(), sched_tick, char, ch, INPUT_ADDR, isr_addr,
+                )
+                cu.trigger_interrupt(isr_addr)
+
+            cu.process_next_tick()
+            logger.debug("%s\n%s", _SEP, cu)
+    except EOFError:
+        logger.warning("Input buffer is empty!")
+    except StopIteration:
+        pass
+
+    if cu.current_tick() >= limit:
+        logger.warning("Limit exceeded! PC=%d", cu.pc)
+
+    logger.info("output_buffer: %s", repr(cu.dp.output_buffer))
+
+    # Дамп памяти данных
+    sp_top = dp.sp
+    dump_end = min(sp_top, 256)
+    last_nonzero = -1
+    for i in range(dump_end):
+        if dp.data_memory[i] != 0:
+            last_nonzero = i
+    if last_nonzero >= 0:
+        lines = ["data memory dump (addr: value):"]
+        for i in range(last_nonzero + 1):
+            lines.append(f"  [{i:4d}] = {dp.data_memory[i]}")
+        logger.info("\n".join(lines))
+    else:
+        logger.info("data memory dump: all zeros (addr 0..%d)", dump_end - 1)
+
+    return dp.output_buffer, cu.current_tick()
 
 
 def main(code_file: str, memory_file: str, input_file: str, superscalar: bool = True):

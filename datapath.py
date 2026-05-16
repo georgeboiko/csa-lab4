@@ -1,5 +1,4 @@
-from machine import *
-
+from config import *
 
 class DataPath:
     """
@@ -46,7 +45,7 @@ class DataPath:
         self.flag_overflow: bool = False
         self.flag_carry: bool = False
 
-        self._cu: "ControlUnit | None" = None
+        self._cu = None
 
     def push_return(self, addr: int):
         if len(self._return_stack) >= RETURN_STACK_SIZE:
