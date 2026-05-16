@@ -11,21 +11,23 @@ class CodeGenerator:
       2 — TEMP1
       3 — INPUT
       4 — OUTPUT
-      5..N   — переменные пользователя, строки
+      5 — ISR_ACC - сохранение ACC при входе в ISR (восстанавливается при IRET)
+      6..N   — переменные пользователя, строки
       ..8191 — стек данных (растёт вниз)
     """
 
     IVT_INPUT_ADDR = 0
-    TEMP0_ADDR = 1
-    TEMP1_ADDR = 2
-    INPUT_ADDR = 3
-    OUTPUT_ADDR = 4
+    TEMP0_ADDR     = 1
+    TEMP1_ADDR     = 2
+    INPUT_ADDR     = 3
+    OUTPUT_ADDR    = 4
+    ISR_ACC_ADDR   = 5
 
     def __init__(self):
         self.code = []
         self.data_memory = [0] * 8192
 
-        self.data_ptr = 5
+        self.data_ptr = 6
 
         self.variables = {}
         self.functions = {}
