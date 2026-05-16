@@ -5,6 +5,8 @@ class DataPath:
     """
     DataPath - реализованы сигналы защёлкивания значений, каждый сигнал - 1 такт.
 
+    Стек возвратов реализован аппаратно.
+
     Регистры:
       acc - аккумулятор 
       ac_shadow - теневой аккумулятор для суперскалярных операций
@@ -27,6 +29,8 @@ class DataPath:
         self.data_memory = list(data_memory)
         self.data_memory += [0] * (DATA_MEMORY_SIZE - len(self.data_memory))
 
+        self._return_stack: list[int] = []
+
         self.output_buffer: list[int] = []
 
         self.acc: int = 0
@@ -43,6 +47,16 @@ class DataPath:
         self.flag_carry: bool = False
 
         self._cu: "ControlUnit | None" = None
+
+    def push_return(self, addr: int):
+        if len(self._return_stack) >= RETURN_STACK_SIZE:
+            raise OverflowError("Переполнение стека возвратов")
+        self._return_stack.append(addr)
+
+    def pop_return(self) -> int:
+        if not self._return_stack:
+            raise RuntimeError("Опустошение стека возвратов")
+        return self._return_stack.pop()
 
     def _set_acc(self, val: int):
         """Устанавливает ACC и обновляет флаги Z и N."""
