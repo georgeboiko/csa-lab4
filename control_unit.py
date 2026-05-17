@@ -119,14 +119,21 @@ class ControlUnit:
                 self._log_slot_shadow = f"dead-load-elim [{arg}]"
                 self.signal_latch_pc(self.pc + 1)
                 self.step = 0
-            elif self.superscalar and dp.shadow_addr is not None and dp.shadow_addr != arg:
-                # AC_SHADOW занят другим адресом → flush shadow (1 такт), потом load (1 такт).
-                self._log_slot_shadow = f"flush shadow -> [{dp.shadow_addr}]={dp.ac_shadow}"
-                dp.signal_shadow_flush()
-                dp.signal_latch_acc_from_mem(arg)
-                self.signal_latch_pc(self.pc + 1)
-                self.step = 0
-                self.tick()
+            elif self.superscalar and dp.shadow_addr is not None:
+                if dp.shadow_addr == arg:
+                    # Значение в shadow - swap ACC <-> AC_SHADOW (0 тактов)
+                    old_shadow_info = f"[{dp.shadow_addr}]={dp.ac_shadow}"
+                    dp.signal_shadow_swap(arg)
+                    self._log_slot_shadow = f"shadow-swap [{arg}] (was {old_shadow_info})"
+                    self.signal_latch_pc(self.pc + 1)
+                    self.step = 0
+                else:
+                    # AC_SHADOW занят другим адресом -> parallel flush
+                    self._log_slot_shadow = f"parallel-flush shadow->[{dp.shadow_addr}]={dp.ac_shadow}, load->[{arg}]"
+                    dp.signal_shadow_parallel_flush(arg)
+                    self.signal_latch_pc(self.pc + 1)
+                    self.step = 0
+                    self.tick()
             else:
                 # Обычная загрузка: ACC <- mem[arg], acc_addr = arg
                 dp.signal_latch_acc_from_mem(arg)
@@ -156,15 +163,20 @@ class ControlUnit:
 
         elif op == Opcode.STORE:
             if self.superscalar:
-                # Deferred store: swap ACC <-> AC_SHADOW (0 тактов — только регистры).
-                #   - AC_SHADOW чист: acc_addr = None
-                #   - AC_SHADOW занят: acc_addr = old_shadow_addr -> dead load elim для следующего LOAD
-                # Запись в память откладывается до flush.
-                old_shadow_info = f"[{dp.shadow_addr}]={dp.ac_shadow}" if dp.shadow_addr is not None else "_"
-                dp.signal_shadow_swap(arg)
-                self._log_slot_shadow = f"deferred-store [{arg}]  (was {old_shadow_info})"
-                self.signal_latch_pc(self.pc + 1)
-                self.step = 0
+                if dp.shadow_addr is not None:
+                    # AC_SHADOW уже занят -> parallel flush.
+                    self._log_slot_shadow = f"parallel-flush shadow->[{dp.shadow_addr}]={dp.ac_shadow}, store->[{arg}]"
+                    dp.signal_shadow_parallel_flush(arg)
+                    self.signal_latch_pc(self.pc + 1)
+                    self.step = 0
+                    self.tick()
+                else:
+                    # Deferred store: swap ACC <-> AC_SHADOW
+                    # Запись в память откладывается до flush.
+                    dp.signal_shadow_swap(arg)
+                    self._log_slot_shadow = f"deferred-store [{arg}]"
+                    self.signal_latch_pc(self.pc + 1)
+                    self.step = 0
             else:
                 dp.signal_store(arg)
                 self.signal_latch_pc(self.pc + 1)
@@ -176,13 +188,21 @@ class ControlUnit:
             # Читаем целевой адрес из памяти
             target_addr = dp._mem_read(arg)
             # Проверяем AC_SHADOW forwarding для целевого адреса
-            if self.superscalar and dp.shadow_addr is not None and target_addr == dp.shadow_addr:
-                # Если целевой адрес совпадает с shadow_addr, используем deferred store
-                old_shadow_info = f"[{dp.shadow_addr}]={dp.ac_shadow}" if dp.shadow_addr is not None else "_"
-                dp.signal_shadow_swap(target_addr)
-                self._log_slot_shadow = f"deferred-store indirect [{target_addr}] (was {old_shadow_info})"
-                self.signal_latch_pc(self.pc + 1)
-                self.step = 0
+            if self.superscalar and dp.shadow_addr is not None:
+                if target_addr == dp.shadow_addr:
+                    # Если целевой адрес совпадает с shadow_addr, используем deferred store
+                    old_shadow_info = f"[{dp.shadow_addr}]={dp.ac_shadow}" if dp.shadow_addr is not None else "_"
+                    dp.signal_shadow_swap(target_addr)
+                    self._log_slot_shadow = f"deferred-store indirect [{target_addr}] (was {old_shadow_info})"
+                    self.signal_latch_pc(self.pc + 1)
+                    self.step = 0
+                else:
+                    # AC_SHADOW занят другим адресом -> parallel flush
+                    self._log_slot_shadow = f"parallel-flush shadow->[{dp.shadow_addr}]={dp.ac_shadow}, store-indirect->[{target_addr}]"
+                    dp.signal_shadow_parallel_flush(target_addr)
+                    self.signal_latch_pc(self.pc + 1)
+                    self.step = 0
+                    self.tick()
             else:
                 # Обычная косвенная запись
                 dp.signal_store_indirect(arg)
@@ -484,7 +504,7 @@ class ControlUnit:
             self._interrupt_pending = False
             self._interrupts_enabled = False
             self.dp.data_memory[ISR_ACC_ADDR] = self.dp.acc
-            self._push_return(self.pc)
+            self.dp.push_return(self.pc)
             self.signal_latch_pc(self._isr_addr)
             logger.debug("INTERRUPT -> ISR @ %d (return addr=%d, saved ACC=%d)",
                          self._isr_addr, self.pc, self.dp.data_memory[ISR_ACC_ADDR])

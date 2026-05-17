@@ -145,12 +145,24 @@ class DataPath:
     def signal_shadow_parallel_flush(self, new_addr: int):
         """
         Параллельный сброс: ACC -> new_addr И shadow -> shadow_addr.
+        Обе записи выполняются за 1 такт.
         """
         if self.shadow_addr is not None:
-            self._mem_write(self.shadow_addr, self.ac_shadow)
+            # Параллельная запись: оба значения пишутся одновременно
+            if self._cu is not None:
+                self._cu._log_io.append(f"PARALLEL-FLUSH: [{self.shadow_addr}]={self.ac_shadow}, [{new_addr}]={self.acc}")
+            self.data_memory[self.shadow_addr] = to_signed32(self.ac_shadow)
             self.shadow_addr = None
             self.ac_shadow = 0
-        self._mem_write(new_addr, self.acc)
+        
+        # Вторая запись (ACC -> new_addr)
+        if new_addr == OUTPUT_ADDR:
+            self.output_buffer.append(self.acc)
+            ch = chr(self.acc & 0xFF) if 32 <= (self.acc & 0xFF) < 127 else f"\\x{self.acc & 0xFF:02x}"
+            if self._cu is not None:
+                self._cu._log_io.append(f"OUT={self.acc}({ch!r})")
+        else:
+            self.data_memory[new_addr] = to_signed32(self.acc)
 
     def signal_store(self, addr: int):
         """mem[addr] <- ACC"""
