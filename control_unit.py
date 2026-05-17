@@ -65,6 +65,13 @@ class ControlUnit:
         self._interrupts_enabled: bool = False
         self._interrupt_pending: bool = False
 
+        self.isr_saved_phase: int = 0
+        self.isr_saved_step: int = 0
+        self.isr_saved_ir: Opcode | None = None
+        self.isr_saved_dr: int = 0
+        self.isr_saved_rar: int = 0
+        self.isr_saved_flags: tuple[bool, bool, bool, bool] = (False, False, False, False)
+
         self._return_stack: list[int] = []
 
         self._tick: int = 0
@@ -146,6 +153,34 @@ class ControlUnit:
         """IP <- value. Триггер запроса прерывания."""
         self._interrupt_pending = value
 
+    def signal_save_isr_context(self):
+        """Сохранить микроархитектурный контекст в теневые регистры при входе в прерывание."""
+        self.isr_saved_phase = self.fetch_phase
+        self.isr_saved_step = self.step
+        self.isr_saved_ir = self.ir
+        self.isr_saved_dr = self.dr
+        self.isr_saved_rar = self.rar
+        self.isr_saved_flags = (
+            self.dp.flag_zero,
+            self.dp.flag_neg,
+            self.dp.flag_carry,
+            self.dp.flag_overflow,
+        )
+
+    def signal_restore_isr_context(self):
+        """Восстановить микроархитектурный контекст из теневых регистров при выходе из прерывания."""
+        self.fetch_phase = self.isr_saved_phase
+        self.step = self.isr_saved_step
+        self.ir = self.isr_saved_ir
+        self.dr = self.isr_saved_dr
+        self.rar = self.isr_saved_rar
+        (
+            self.dp.flag_zero,
+            self.dp.flag_neg,
+            self.dp.flag_carry,
+            self.dp.flag_overflow,
+        ) = self.isr_saved_flags
+
     def _branch(self, condition: bool, addr: int) -> bool:
         """
         Условный переход. Если условие истинно - защёлкивает PC в addr.
@@ -204,6 +239,25 @@ class ControlUnit:
         self._log_slot_acc = ""
         self._log_slot_shadow = ""
         self._log_io = []
+
+        if self._interrupts_enabled and self._interrupt_pending:
+            isr_addr = dp.signal_read_ivt_input()
+            if isr_addr != 0:
+                self.signal_latch_ip(False)
+                self.signal_latch_ie(False)
+                dp.signal_save_acc_to_isr_slot()
+                self.signal_save_isr_context()
+                
+                self.push_return(self.pc)
+                self.signal_latch_pc(isr_addr)
+                logger.debug(
+                    "INTERRUPT -> ISR @ %d (return addr saved, saved ACC=%d)",
+                    isr_addr, dp.acc,
+                )
+                self.tick()
+                return
+            else:
+                self.signal_latch_ip(False)
 
         # FETCH_OP
         if self.fetch_phase == 0:
@@ -609,34 +663,14 @@ class ControlUnit:
                 self.signal_set_step(1)
                 self.tick()
             else:  # step == 1
-                # Три параллельных приёмника на одном такте:
-                #   PC  <- RAR                          (CU)
-                #   ACC <- mem[ISR_ACC_ADDR]           (DataPath, шина данных)
-                #   IE  <- 1                            (CU, триггер IE)
                 self.signal_latch_pc(self.rar)
+                self.signal_restore_isr_context()
                 dp.signal_restore_acc_from_isr_slot()
                 self.signal_latch_ie(True)
-                self.signal_set_step(0)
                 self.tick()
 
         else:
             raise ValueError(f"Неизвестный опкод: {op}")
-
-        if (self.step == 0 and self.fetch_phase == 0
-                and self._interrupts_enabled and self._interrupt_pending):
-            isr_addr = dp.signal_read_ivt_input()
-            if isr_addr != 0:
-                self.signal_latch_ip(False)
-                self.signal_latch_ie(False)
-                dp.signal_save_acc_to_isr_slot()
-                self.push_return(self.pc)
-                self.signal_latch_pc(isr_addr)
-                logger.debug(
-                    "INTERRUPT -> ISR @ %d (return addr saved, saved ACC=%d)",
-                    isr_addr, dp.acc,
-                )
-            else:
-                self.signal_latch_ip(False)
 
     def trigger_interrupt(self):
         self.signal_latch_ip(True)
