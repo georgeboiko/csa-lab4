@@ -1,5 +1,11 @@
-__pycache__
-syntax.txt
-.vscode
-*.hex
+__pycache__/
+.venv/
+venv/
+.pytest_cache/
+.vscode/
 *.bin
+*.hex
+*.txt
+run.sh
+tests/
+benchmark.py

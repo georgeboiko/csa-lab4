@@ -1,0 +1,229 @@
+source: |2
+
+  : print_string
+      begin
+          dup @
+          dup 0 = if
+              drop drop 1
+          else
+              emit
+              1 +
+              0
+          endif
+      until
+  ;
+
+  "Hello, World!" print_string
+
+input: []
+translator_output: |
+  source LoC: 16 code instr: 56
+
+machine_output: Hello, World!
+machine_err: |2
+
+  output: [72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33]
+  ticks: 1214
+
+log: |-
+  INFO     config:machine.py:138 IVT[0]=0
+  INFO     config:machine.py:147 Loaded input schedule: []
+  DEBUG    config:machine.py:51 Superscalar mode: ON
+  DEBUG    config:machine.py:60 ────────────────────────────────────────────────────────────────────────
+  TICK:    0  PC:    0/FOP#0  IR:-          DR:          0  ACC:           0  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: (next) jump 119           
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    1  PC:    1/FAR#0  IR:jump       DR:          0  ACC:           0  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: FETCH_OP  pc=0 word=0x19000000 -> IR=jump
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    2  PC:    5/EXE#0  IR:jump       DR:        119  ACC:           0  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: FETCH_ARG pc=1 word=0x00000077 -> DR=119
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    3  PC:  119/FOP#0  IR:-          DR:        119  ACC:           0  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: jump 119                  
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    4  PC:  120/FAR#0  IR:load_imm   DR:        119  ACC:           0  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: FETCH_OP  pc=119 word=0x02000000 -> IR=load_imm
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    5  PC:  124/EXE#0  IR:load_imm   DR:          6  ACC:           0  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: FETCH_ARG pc=120 word=0x00000006 -> DR=6
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    6  PC:  124/FOP#0  IR:-          DR:          6  ACC:           6  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: load_imm 6                
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    7  PC:  125/EXE#0  IR:dec_sp     DR:          6  ACC:           6  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: FETCH_OP  pc=124 word=0x09072400 -> IR=dec_sp
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    8  PC:  125/FOP#0  IR:-          DR:          6  ACC:           6  SP: 8190  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: dec_sp                    
+    STACK:  TOS=         0
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    9  PC:  126/EXE#0  IR:store_sp   DR:          6  ACC:           6  SP: 8190  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0
+    SLOT-A: FETCH_OP  pc=125 word=0x07240000 -> IR=store_sp
+    STACK:  TOS=         0
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:    9  PC:  126/FOP#0  IR:-          DR:          6  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 0  SHD:[8190]=6
+    SLOT-A: store_sp                    ||  SHADOW: deferred-store-sp [8190]
+    STACK:  TOS=         0
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   10  PC:  127/FAR#0  IR:call       DR:          6  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 0  SHD:[8190]=6
+    SLOT-A: FETCH_OP  pc=126 word=0x24000000 -> IR=call
+    STACK:  TOS=         0
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   11  PC:  131/EXE#0  IR:call       DR:          5  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 0  SHD:[8190]=6
+    SLOT-A: FETCH_ARG pc=127 word=0x00000005 -> DR=5
+    STACK:  TOS=         0
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   13  PC:    5/FOP#0  IR:-          DR:          5  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 1
+    SLOT-A: call 5                      ||  SHADOW: flush shadow -> [8190]=6
+    STACK:  TOS=         6
+    IO:     FLUSH: [8190]=6
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   14  PC:    6/EXE#0  IR:load_sp    DR:          5  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 1
+    SLOT-A: FETCH_OP  pc=5 word=0x06090706 -> IR=load_sp
+    STACK:  TOS=         6
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   15  PC:    6/FOP#0  IR:-          DR:          5  ACC:           6  SP: 8190  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: load_sp                   
+    STACK:  TOS=         6
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   16  PC:    7/EXE#0  IR:dec_sp     DR:          5  ACC:           6  SP: 8190  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: FETCH_OP  pc=6 word=0x09070603 -> IR=dec_sp
+    STACK:  TOS=         6
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   17  PC:    7/FOP#0  IR:-          DR:          5  ACC:           6  SP: 8189  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: dec_sp                    
+    STACK:  TOS=         0  [     6]
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   18  PC:    8/EXE#0  IR:store_sp   DR:          5  ACC:           6  SP: 8189  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: FETCH_OP  pc=7 word=0x07060307 -> IR=store_sp
+    STACK:  TOS=         0  [     6]
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   18  PC:    8/FOP#0  IR:-          DR:          5  ACC:           0  SP: 8189  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 1  SHD:[8189]=6
+    SLOT-A: store_sp                    ||  SHADOW: deferred-store-sp [8189]
+    STACK:  TOS=         0  [     6]
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   19  PC:    9/EXE#0  IR:load_sp    DR:          5  ACC:           0  SP: 8189  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 1  SHD:[8189]=6
+    SLOT-A: FETCH_OP  pc=8 word=0x06030706 -> IR=load_sp
+    STACK:  TOS=         0  [     6]
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   19  PC:    9/FOP#0  IR:-          DR:          5  ACC:           6  SP: 8189  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  SHD:[8189]=6  ACC@[8189]
+    SLOT-A: load_sp                     ||  SHADOW: shadow-forward-sp [8189]=6
+    STACK:  TOS=         0  [     6]
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   20  PC:   10/EXE#0  IR:load_acc   DR:          5  ACC:           6  SP: 8189  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  SHD:[8189]=6  ACC@[8189]
+    SLOT-A: FETCH_OP  pc=9 word=0x03070609 -> IR=load_acc
+    STACK:  TOS=         0  [     6]
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK:   21  PC:   10/FOP#0  IR:-          DR:          5  ACC:          72  SP: 8189  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  SHD:[8189]=6
+    SLOT-A: load_acc                    ||  SHADOW: shadow:[8189]=6
+    STACK:  TOS=         0  [     6]
+  ...
+    SLOT-A: FETCH_ARG pc=65 word=0x00000001 -> DR=1
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1196  PC:   69/FOP#0  IR:-          DR:          1  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1
+    SLOT-A: load_imm 1                
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1197  PC:   70/EXE#0  IR:dec_sp     DR:          1  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1
+    SLOT-A: FETCH_OP  pc=69 word=0x09071900 -> IR=dec_sp
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1198  PC:   70/FOP#0  IR:-          DR:          1  ACC:           1  SP: 8190  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1
+    SLOT-A: dec_sp                    
+    STACK:  TOS=        19
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1199  PC:   71/EXE#0  IR:store_sp   DR:          1  ACC:           1  SP: 8190  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1
+    SLOT-A: FETCH_OP  pc=70 word=0x07190000 -> IR=store_sp
+    STACK:  TOS=        19
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1199  PC:   71/FOP#0  IR:-          DR:          1  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 1  SHD:[8190]=1
+    SLOT-A: store_sp                    ||  SHADOW: deferred-store-sp [8190]
+    STACK:  TOS=        19
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1200  PC:   72/FAR#0  IR:jump       DR:          1  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 1  SHD:[8190]=1
+    SLOT-A: FETCH_OP  pc=71 word=0x19000000 -> IR=jump
+    STACK:  TOS=        19
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1201  PC:   76/EXE#0  IR:jump       DR:        111  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 1  SHD:[8190]=1
+    SLOT-A: FETCH_ARG pc=72 word=0x0000006f -> DR=111
+    STACK:  TOS=        19
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1203  PC:  111/FOP#0  IR:-          DR:        111  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 1
+    SLOT-A: jump 111                    ||  SHADOW: flush shadow -> [8190]=1
+    STACK:  TOS=         1
+    IO:     FLUSH: [8190]=1
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1204  PC:  112/EXE#0  IR:load_sp    DR:        111  ACC:           0  SP: 8190  N=0 Z=1 V=0 C=0  IE=0 IP=0  RS: 1
+    SLOT-A: FETCH_OP  pc=111 word=0x06081a00 -> IR=load_sp
+    STACK:  TOS=         1
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1205  PC:  112/FOP#0  IR:-          DR:        111  ACC:           1  SP: 8190  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: load_sp                   
+    STACK:  TOS=         1
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1206  PC:  113/EXE#0  IR:inc_sp     DR:        111  ACC:           1  SP: 8190  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: FETCH_OP  pc=112 word=0x081a0000 -> IR=inc_sp
+    STACK:  TOS=         1
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1207  PC:  113/FOP#0  IR:-          DR:        111  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: inc_sp                    
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1208  PC:  114/FAR#0  IR:beqz       DR:        111  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: FETCH_OP  pc=113 word=0x1a000000 -> IR=beqz
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1209  PC:  118/EXE#0  IR:beqz       DR:          5  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: FETCH_ARG pc=114 word=0x00000005 -> DR=5
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1210  PC:  118/FOP#0  IR:-          DR:          5  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: beqz 5                    
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1211  PC:  119/EXE#0  IR:ret        DR:          5  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 1  ACC@[8190]
+    SLOT-A: FETCH_OP  pc=118 word=0x26020000 -> IR=ret
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1212  PC:  119/EXE#1  IR:ret        DR:          5  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0  ACC@[8190]
+    SLOT-A: ret                       
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1213  PC:  131/FOP#0  IR:-          DR:          5  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0  ACC@[8190]
+    SLOT-A: ret                       
+    STACK:  <empty>
+  DEBUG    config:machine.py:85 ────────────────────────────────────────────────────────────────────────
+  TICK: 1214  PC:  132/EXE#0  IR:halt       DR:          5  ACC:           1  SP: 8191  N=0 Z=0 V=0 C=0  IE=0 IP=0  RS: 0  ACC@[8190]
+    SLOT-A: FETCH_OP  pc=131 word=0x00000000 -> IR=halt
+    STACK:  <empty>
+  INFO     config:machine.py:94 output_buffer: [72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33]
+  INFO     config:machine.py:107 data memory dump (addr: value):
+    [   0] = 0
+    [   1] = 0
+    [   2] = 0
+    [   3] = 0
+    [   4] = 0
+    [   5] = 0
+    [   6] = 72
+    [   7] = 101
+    [   8] = 108
+    [   9] = 108
+    [  10] = 111
+    [  11] = 44
+    [  12] = 32
+    [  13] = 87
+    [  14] = 111
+    [  15] = 114
+    [  16] = 108
+    [  17] = 100
+    [  18] = 33

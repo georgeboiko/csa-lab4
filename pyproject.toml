@@ -1,0 +1,44 @@
+[project]
+name = "csa-lab4"
+version = "0.1.0"
+description = "Forth -> accumulator processor: translator + tick-accurate simulator"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["venv", ".venv", "__pycache__", "tests"]
+
+[tool.ruff.lint]
+select = [
+  "E", "F", "W",   # pycodestyle / pyflakes
+  "I",             # isort
+  "UP",            # pyupgrade
+  "B",             # bugbear
+  "SIM",           # simplify
+  "RUF",           # ruff specific
+]
+ignore = [
+  "E501",   # line too long: schemes/comments are intentionally wide
+  "E741",   # ambiguous variable names (l, I) used in compiler tables
+  "F403",   # `from X import *` used in isa/config glue
+  "F405",   # may be undefined from `import *` (same reason)
+  "B008",   # function call in argument defaults (Forth codegen ok)
+  "SIM108", # ternary instead of if/else (clarity)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"control_unit.py" = ["E712"]   # explicit `== True` / `== False` for hardware flags
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_ignores = true
+no_implicit_optional = true
+check_untyped_defs = true
+exclude = "^(tests/|venv/|\\.venv/|__pycache__/)"
+
+[tool.pytest.ini_options]
+testpaths = ["golden"]
+python_files = ["test_*.py"]
+addopts = "-ra --tb=short"
