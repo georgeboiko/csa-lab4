@@ -131,6 +131,13 @@ class DataPath:
         self.flag_zero = (self.acc == 0)
         self.flag_neg  = (self.acc < 0)
 
+    def signal_shadow_overwrite(self, addr: int):
+        """
+        Перезапись отложенного store по тому же адресу.
+        """
+        self.ac_shadow = self.acc
+        self.shadow_addr = addr
+
     def signal_shadow_flush(self):
         """
         Сброс shadow в память.
@@ -144,25 +151,32 @@ class DataPath:
 
     def signal_shadow_parallel_flush(self, new_addr: int):
         """
-        Параллельный сброс: ACC -> new_addr И shadow -> shadow_addr.
+        Параллельный store: shadow -> shadow_addr И ACC -> new_addr.
         Обе записи выполняются за 1 такт.
         """
         if self.shadow_addr is not None:
-            # Параллельная запись: оба значения пишутся одновременно
             if self._cu is not None:
                 self._cu._log_io.append(f"PARALLEL-FLUSH: [{self.shadow_addr}]={self.ac_shadow}, [{new_addr}]={self.acc}")
             self.data_memory[self.shadow_addr] = to_signed32(self.ac_shadow)
             self.shadow_addr = None
             self.ac_shadow = 0
-        
-        # Вторая запись (ACC -> new_addr)
-        if new_addr == OUTPUT_ADDR:
-            self.output_buffer.append(self.acc)
-            ch = chr(self.acc & 0xFF) if 32 <= (self.acc & 0xFF) < 127 else f"\\x{self.acc & 0xFF:02x}"
+        # Вторая запись (ACC -> new_addr) через mem_write для поддержки OUTPUT
+        self._mem_write(new_addr, self.acc)
+
+    def signal_shadow_flush_and_load(self, addr: int):
+        """
+        Параллельный flush + load: shadow -> shadow_addr И ACC <- mem[addr].
+        Обе операции выполняются за 1 такт.
+        """
+        if self.shadow_addr is not None:
             if self._cu is not None:
-                self._cu._log_io.append(f"OUT={self.acc}({ch!r})")
-        else:
-            self.data_memory[new_addr] = to_signed32(self.acc)
+                self._cu._log_io.append(f"PARALLEL-FLUSH+LOAD: [{self.shadow_addr}]={self.ac_shadow}, ACC<-[{addr}]")
+            self.data_memory[self.shadow_addr] = to_signed32(self.ac_shadow)
+            self.shadow_addr = None
+            self.ac_shadow = 0
+        # Чтение в ACC (используем _mem_read для поддержки INPUT)
+        self._set_acc(self._mem_read(addr))
+        self.acc_addr = addr
 
     def signal_store(self, addr: int):
         """mem[addr] <- ACC"""
