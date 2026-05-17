@@ -36,12 +36,11 @@ import json
 import sys
 
 from config import *
-from isa import from_bytes
 from datapath import DataPath
 from control_unit import ControlUnit
 
 def simulation(
-    code: list[dict],
+    code: bytes,
     data_memory: list[int],
     input_schedule: list[tuple[int, int]] | None = None,
     limit: int = 10_000_000,
@@ -80,7 +79,7 @@ def simulation(
                     "  [TRAP] tick=%d (scheduled=%d) char=%d (%r) -> mem[%d], ISR@%d",
                     cu.current_tick(), sched_tick, char, ch, INPUT_ADDR, isr_addr,
                 )
-                cu.trigger_interrupt(isr_addr)
+                cu.trigger_interrupt()
 
             cu.process_next_tick()
             logger.debug("%s\n%s", _SEP, cu)
@@ -125,7 +124,7 @@ def main(code_file: str, memory_file: str, input_file: str, superscalar: bool = 
     """
 
     with open(code_file, "rb") as f:
-        code = from_bytes(f.read())
+        code = f.read()
 
     with open(memory_file, "rb") as f:
         raw = f.read()

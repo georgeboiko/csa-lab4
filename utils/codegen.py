@@ -335,18 +335,27 @@ class CodeGenerator:
         self.add_instruction(Opcode.STORE_SP)
 
     def resolve_labels(self):
+        """
+        Линкер: разрешает символические метки в байтовые адреса.
+        """
+        from isa import instr_size_bytes
+
         resolved_code = []
-        labels_map = {}
+        labels_map: dict[str, int] = {}
 
-        current_address = 0
+        # Первый проход: вычисляем байтовые адреса меток.
+        current_byte_addr = 0
         for instr in self.code:
-            if instr["opcode"] == "LABEL":
-                labels_map[instr["arg"]] = current_address
+            op = instr["opcode"]
+            if op == "LABEL":
+                labels_map[instr["arg"]] = current_byte_addr
             else:
-                current_address += 1
+                current_byte_addr += instr_size_bytes(op)
 
+        # Второй проход: подставляем адреса в аргументы.
         for instr in self.code:
-            if instr["opcode"] == "LABEL":
+            op = instr["opcode"]
+            if op == "LABEL":
                 continue
 
             arg = instr["arg"]
@@ -355,7 +364,7 @@ class CodeGenerator:
                     raise Exception(f"Линкер: Неизвестная метка перехода '{arg}'")
                 arg = labels_map[arg]
 
-            resolved_code.append({"opcode": instr["opcode"], "arg": arg})
+            resolved_code.append({"opcode": op, "arg": arg})
 
         self.code = resolved_code
         self._resolved_labels = labels_map
