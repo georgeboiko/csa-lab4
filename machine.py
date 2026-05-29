@@ -9,6 +9,7 @@
 """
 
 import json
+import os
 import sys
 
 from config import (
@@ -32,21 +33,28 @@ def simulation(
     dp = DataPath(data_memory)
     cu = ControlUnit(code, dp, superscalar=superscalar)
 
+    SPARSE_LOG = os.environ.get("SPARSE_LOG", "").lower() == "true"
+    LOG_INTERVAL = int(os.environ.get("LOG_INTERVAL", "1000"))
+
     trace_buffer = []
+    _SEP = "─" * 72
 
     trace_buffer.append(f"Superscalar mode: {'ON' if superscalar else 'OFF'}")
+    trace_buffer.append(f"Sparse logging: {'ON' if SPARSE_LOG else 'OFF'} (every {LOG_INTERVAL} ticks)")
 
-    # Читаем адрес ISR из таблицы векторов прерываний (mem[IVT_INPUT_ADDR]).
+    # Читаем адрес ISR из таблицы векторов прерываний
     isr_addr: int | None = dp.data_memory[IVT_INPUT_ADDR] or None
     if isr_addr is not None:
         cu.enable_interrupts()
         trace_buffer.append(f"Trap mode: ISR addr={isr_addr} (from IVT[0])")
 
-    _SEP = "─" * 72
     logger.debug("%s\n%s", _SEP, cu)
+
+    last_log_tick = 0
 
     try:
         while cu.current_tick() < limit:
+            # Обработка прерываний
             if (
                 isr_addr is not None
                 and input_schedule
@@ -63,15 +71,24 @@ def simulation(
                     f"char={char} ({ch!r}) "
                     f"-> mem[{INPUT_ADDR}], ISR@{isr_addr}"
                 )
-
                 cu.trigger_interrupt()
 
             cu.process_next_tick()
-            trace_buffer.append(f"{_SEP}\n{cu}")
+
+            if SPARSE_LOG:
+                if cu.current_tick() - last_log_tick >= LOG_INTERVAL:
+                    trace_buffer.append(f"{_SEP}\n{cu}")
+                    last_log_tick = cu.current_tick()
+            else:
+                trace_buffer.append(f"{_SEP}\n{cu}")
+
     except EOFError:
         logger.warning("Input buffer is empty!")
     except StopIteration:
         pass
+
+    if SPARSE_LOG and trace_buffer:
+        trace_buffer.append(f"\n{_SEP}\nFINAL STATE at tick={cu.current_tick()}:\n{cu}")
 
     if cu.current_tick() >= limit:
         logger.warning("Limit exceeded! PC=%d", cu.pc)

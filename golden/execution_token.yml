@@ -21,204 +21,21 @@ machine_err: |2
   ticks: 189
 
 log: |-
-  INFO     config:machine.py:125 IVT[0]=0
-  INFO     config:machine.py:134 Loaded input schedule: []
-  DEBUG    config:machine.py:46 ────────────────────────────────────────────────────────────────────────
+  INFO     config:machine.py:142 IVT[0]=0
+  INFO     config:machine.py:151 Loaded input schedule: []
+  DEBUG    config:machine.py:51 ────────────────────────────────────────────────────────────────────────
   TICK:    0  PC:    0/S0  IR:-          ARG:         0  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
     SLOT-A: (next) jump 100           
     STACK:  <empty>
-  DEBUG    config:machine.py:79 Superscalar mode: ON
+  DEBUG    config:machine.py:96 Superscalar mode: ON
+  Sparse logging: ON (every 1000 ticks)
+
   ────────────────────────────────────────────────────────────────────────
-  TICK:    1  PC:    4/S1  IR:jump       ARG:       100  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
-    SLOT-A: FETCH pc=0 word=0x19000064 -> IR=jump
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
-  TICK:    2  PC:  100/S0  IR:jump       ARG:       100  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
-    SLOT-A: jump 100 S1               
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
-  TICK:    3  PC:  104/S1  IR:load_imm   ARG:         3  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
-    SLOT-A: FETCH pc=100 word=0x02000003 -> IR=load_imm
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
-  TICK:    4  PC:  104/S0  IR:load_imm   ARG:         3  ACC:           3  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
-    SLOT-A: load_imm 3 S1             
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
-  TICK:    5  PC:  108/S1  IR:dec_sp     ARG:         0  ACC:           3  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
-    SLOT-A: FETCH pc=104 word=0x09000000 -> IR=dec_sp
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
-  TICK:    6  PC:  108/S0  IR:dec_sp     ARG:         0  ACC:           3  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
-    SLOT-A: dec_sp S1                 
-    STACK:  TOS=         0
-  ────────────────────────────────────────────────────────────────────────
-  TICK:    7  PC:  112/S1  IR:store_sp   ARG:         0  ACC:           3  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
-    SLOT-A: FETCH pc=108 word=0x07000000 -> IR=store_sp
-    STACK:  TOS=         0
-  ────────────────────────────────────────────────────────────────────────
-  TICK:    8  PC:  112/S0  IR:store_sp   ARG:         0  ACC:           3  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=3  ACC@[8187]
-    SLOT-A: store_sp S1                 ||  SHADOW: deferred-store [8187]=3
-    STACK:  TOS=         0
-  ────────────────────────────────────────────────────────────────────────
-  TICK:    9  PC:  116/S1  IR:load_imm   ARG:         4  ACC:           3  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=3  ACC@[8187]
-    SLOT-A: FETCH pc=112 word=0x02000004 -> IR=load_imm
-    STACK:  TOS=         0
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   10  PC:  116/S0  IR:load_imm   ARG:         4  ACC:           4  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=3
-    SLOT-A: load_imm 4 S1               ||  SHADOW: shadow:[8187]=3
-    STACK:  TOS=         0
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   11  PC:  120/S1  IR:dec_sp     ARG:         0  ACC:           4  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=3
-    SLOT-A: FETCH pc=116 word=0x09000000 -> IR=dec_sp
-    STACK:  TOS=         0
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   12  PC:  120/S0  IR:dec_sp     ARG:         0  ACC:           4  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=3
-    SLOT-A: dec_sp S1                   ||  SHADOW: shadow:[8187]=3
-    STACK:  TOS=         0  [     0]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   13  PC:  124/S1  IR:store_sp   ARG:         0  ACC:           4  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=3
-    SLOT-A: FETCH pc=120 word=0x07000000 -> IR=store_sp
-    STACK:  TOS=         0  [     0]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   14  PC:  124/S2  IR:store_sp   ARG:         0  ACC:           4  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=3
-    SLOT-A: store_sp S1                 ||  SHADOW: parallel: AR<-SH_ADDR=8187
-    STACK:  TOS=         0  [     0]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   15  PC:  124/S0  IR:store_sp   ARG:         0  ACC:           4  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8183]=4  ACC@[8183]
-    SLOT-A: store_sp S2                 ||  SHADOW: parallel: mem[8187]<-AC_SH || store->[8183]=4
-    STACK:  TOS=         0  [     3]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   16  PC:  128/S1  IR:call       ARG:        84  ACC:           4  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8183]=4  ACC@[8183]
-    SLOT-A: FETCH pc=124 word=0x24000054 -> IR=call
-    STACK:  TOS=         0  [     3]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   17  PC:  128/S2  IR:call       ARG:        84  ACC:           4  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8183]=4  ACC@[8183]
-    SLOT-A: (next) load_imm 48          ||  SHADOW: flush AR <- SH_ADDR=8183
-    STACK:  TOS=         0  [     3]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   18  PC:  128/S1  IR:call       ARG:        84  ACC:           4  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  ACC@[8183]
-    SLOT-A: (next) load_imm 48          ||  SHADOW: flush mem[8183] <- AC_SH
-    STACK:  TOS=         4  [     3]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   19  PC:  128/S2  IR:call       ARG:        84  ACC:           4  SP: 8183  RSP: 4091  NZVC=0b0000  EI=0 IRQ=0  RS: 1  ACC@[8183]
-    SLOT-A: call 84 S1                
-    STACK:  TOS=         4  [     3]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   20  PC:  128/S3  IR:call       ARG:        84  ACC:           4  SP: 8183  RSP: 4091  NZVC=0b0000  EI=0 IRQ=0  RS: 1  ACC@[8183]
-    SLOT-A: call 84 S2                
-    STACK:  TOS=         4  [     3]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   21  PC:  128/S4  IR:call       ARG:        84  ACC:           4  SP: 8183  RSP: 4091  NZVC=0b0000  EI=0 IRQ=0  RS: 1  ACC@[8183]
-    SLOT-A: call 84 S3                
-    STACK:  TOS=         4  [     3]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   22  PC:   84/S0  IR:call       ARG:        84  ACC:           4  SP: 8183  RSP: 4091  NZVC=0b0000  EI=0 IRQ=0  RS: 1  ACC@[8183]
-    SLOT-A: call 84 S4                
-    STACK:  TOS=         4  [     3]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:   23  PC:   88/S1  IR:load_sp    ARG:         0  ACC:           4  SP: 8183  RSP: 4091  NZVC=0b0000  EI=0 IRQ=0  RS: 1  ACC@[8183]
-    SLOT-A: FETCH pc=84 word=0x06000000 -> IR=load_sp
-    STACK:  TOS=         4  [     3]
-  ────────────────────────────────────────────────────────────────────────
-  ...
-  TICK:  166  PC:  224/S1  IR:store      ARG:         1  ACC:          48  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8183]=48  ACC@[8183]
-    SLOT-A: FETCH pc=220 word=0x04000001 -> IR=store
-    STACK:  TOS=         3  [     9]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  167  PC:  224/S2  IR:store      ARG:         1  ACC:          48  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8183]=48  ACC@[8183]
-    SLOT-A: store 1 S1                  ||  SHADOW: parallel: AR<-SH_ADDR=8183
-    STACK:  TOS=         3  [     9]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  168  PC:  224/S0  IR:store      ARG:         1  ACC:          48  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48  ACC@[1]
-    SLOT-A: store 1 S2                  ||  SHADOW: parallel: mem[8183]<-AC_SH || store->[1]=48
-    STACK:  TOS=        48  [     9]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  169  PC:  228/S1  IR:inc_sp     ARG:         0  ACC:          48  SP: 8183  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48  ACC@[1]
-    SLOT-A: FETCH pc=224 word=0x08000000 -> IR=inc_sp
-    STACK:  TOS=        48  [     9]
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  170  PC:  228/S0  IR:inc_sp     ARG:         0  ACC:          48  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48  ACC@[1]
-    SLOT-A: inc_sp S1                   ||  SHADOW: shadow:[1]=48
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  171  PC:  232/S1  IR:load_sp    ARG:         0  ACC:          48  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48  ACC@[1]
-    SLOT-A: FETCH pc=228 word=0x06000000 -> IR=load_sp
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  172  PC:  232/S2  IR:load_sp    ARG:         0  ACC:          48  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48  ACC@[1]
-    SLOT-A: load_sp S1                  ||  SHADOW: shadow:[1]=48
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  173  PC:  232/S3  IR:load_sp    ARG:         0  ACC:          48  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48  ACC@[1]
-    SLOT-A: load_sp S2                  ||  SHADOW: shadow:[1]=48
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  174  PC:  232/S0  IR:load_sp    ARG:         0  ACC:           9  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48  ACC@[8187]
-    SLOT-A: load_sp S3                  ||  SHADOW: shadow:[1]=48
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  175  PC:  236/S1  IR:add        ARG:         1  ACC:           9  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48  ACC@[8187]
-    SLOT-A: FETCH pc=232 word=0x0c000001 -> IR=add
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  176  PC:  236/S0  IR:add        ARG:         1  ACC:          57  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48
-    SLOT-A: add 1 S1                    ||  SHADOW: alu-shadow-forward [1]
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  177  PC:  240/S1  IR:store_sp   ARG:         0  ACC:          57  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48
-    SLOT-A: FETCH pc=236 word=0x07000000 -> IR=store_sp
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  178  PC:  240/S2  IR:store_sp   ARG:         0  ACC:          57  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[1]=48
-    SLOT-A: store_sp S1                 ||  SHADOW: parallel: AR<-SH_ADDR=1
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  179  PC:  240/S0  IR:store_sp   ARG:         0  ACC:          57  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: store_sp S2                 ||  SHADOW: parallel: mem[1]<-AC_SH || store->[8187]=57
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  180  PC:  244/S1  IR:load_sp    ARG:         0  ACC:          57  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: FETCH pc=240 word=0x06000000 -> IR=load_sp
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  181  PC:  244/S0  IR:load_sp    ARG:         0  ACC:          57  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: load_sp S1                  ||  SHADOW: shadow-forward [8187]
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  182  PC:  248/S1  IR:inc_sp     ARG:         0  ACC:          57  SP: 8187  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: FETCH pc=244 word=0x08000000 -> IR=inc_sp
-    STACK:  TOS=         9
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  183  PC:  248/S0  IR:inc_sp     ARG:         0  ACC:          57  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: inc_sp S1                   ||  SHADOW: shadow:[8187]=57
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  184  PC:  252/S1  IR:store      ARG:         4  ACC:          57  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: FETCH pc=248 word=0x04000004 -> IR=store
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  185  PC:  252/S2  IR:store      ARG:         4  ACC:          57  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: store 4 S1                  ||  SHADOW: shadow:[8187]=57
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  186  PC:  252/S0  IR:store      ARG:         4  ACC:          57  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: store 4 S2                  ||  SHADOW: shadow:[8187]=57
-    STACK:  <empty>
-    IO:     OUT=57('9')
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  187  PC:  256/S1  IR:-          ARG:         0  ACC:          57  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: FETCH pc=252 word=0x00000000 -> IR=halt
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
-  TICK:  188  PC:  256/S2  IR:-          ARG:         0  ACC:          57  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  SHD:[8187]=57  ACC@[8187]
-    SLOT-A: (next) <eop>                ||  SHADOW: flush AR <- SH_ADDR=8187
-    STACK:  <empty>
-  ────────────────────────────────────────────────────────────────────────
+  FINAL STATE at tick=189:
   TICK:  189  PC:  256/S1  IR:-          ARG:         0  ACC:          57  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  ACC@[8187]
-    SLOT-A: (next) <eop>                ||  SHADOW: flush mem[8187] <- AC_SH
+    SLOT-A: halt S1                   
     STACK:  <empty>
-  INFO     config:machine.py:81 output_buffer: [54, 57]
-  INFO     config:machine.py:94 data memory dump (addr: value):
+  INFO     config:machine.py:98 output_buffer: [54, 57]
+  INFO     config:machine.py:111 data memory dump (addr: value):
     [   0] = 0
     [   1] = 48
