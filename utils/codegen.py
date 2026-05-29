@@ -79,7 +79,7 @@ class CodeGenerator:
 
         # Записываем адрес ISR ввода в таблицу векторов прерываний.
         # mem[IVT_INPUT_ADDR] = адрес первого объявленного :isr, 0 если нет.
-        # Симулятор читает mem[IVT_INPUT_ADDR] при старте и, если ненулевой, 
+        # Симулятор читает mem[IVT_INPUT_ADDR] при старте и, если ненулевой,
         # включает прерывания и использует этот адрес как ISR.
         for node in ast:
             if isinstance(node, IsrDefNode):
@@ -308,7 +308,7 @@ class CodeGenerator:
         self.label_counter += 1
         true_lbl = self.get_label("cmp_true", str(self.label_counter))
         self.label_counter += 1
-        end_lbl  = self.get_label("cmp_end",  str(self.label_counter))
+        end_lbl = self.get_label("cmp_end", str(self.label_counter))
 
         self.add_instruction(Opcode.LOAD_SP)
         self.add_instruction(Opcode.STORE, TEMP0_ADDR)

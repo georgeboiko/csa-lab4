@@ -12,14 +12,34 @@ from isa import (
 
 class ControlUnit:
 
-    _ALWAYS_SHOW_ARG = frozenset({
-        Opcode.LOAD_IMM, Opcode.LOAD, Opcode.STORE, Opcode.STORE_IND,
-        Opcode.ADD, Opcode.SUB, Opcode.MUL, Opcode.DIV, Opcode.MOD,
-        Opcode.AND, Opcode.OR, Opcode.XOR,
-        Opcode.JUMP, Opcode.BEQZ, Opcode.BNEZ, Opcode.BGTZ, Opcode.BLTZ,
-        Opcode.BGEZ, Opcode.BLEZ, Opcode.BVS, Opcode.BVC,
-        Opcode.BCS, Opcode.BCC, Opcode.CALL,
-    })
+    _ALWAYS_SHOW_ARG = frozenset(
+        {
+            Opcode.LOAD_IMM,
+            Opcode.LOAD,
+            Opcode.STORE,
+            Opcode.STORE_IND,
+            Opcode.ADD,
+            Opcode.SUB,
+            Opcode.MUL,
+            Opcode.DIV,
+            Opcode.MOD,
+            Opcode.AND,
+            Opcode.OR,
+            Opcode.XOR,
+            Opcode.JUMP,
+            Opcode.BEQZ,
+            Opcode.BNEZ,
+            Opcode.BGTZ,
+            Opcode.BLTZ,
+            Opcode.BGEZ,
+            Opcode.BLEZ,
+            Opcode.BVS,
+            Opcode.BVC,
+            Opcode.BCS,
+            Opcode.BCC,
+            Opcode.CALL,
+        }
+    )
 
     _ALU_BIN = {
         Opcode.ADD: (DataPath.ALU_ADD, True),
@@ -28,23 +48,37 @@ class ControlUnit:
         Opcode.DIV: (DataPath.ALU_DIV, False),
         Opcode.MOD: (DataPath.ALU_MOD, False),
         Opcode.AND: (DataPath.ALU_AND, False),
-        Opcode.OR:  (DataPath.ALU_OR,  False),
+        Opcode.OR: (DataPath.ALU_OR, False),
         Opcode.XOR: (DataPath.ALU_XOR, False),
     }
 
     _ALU_UN = {
-        Opcode.INC:    DataPath.ALU_INC,
-        Opcode.DEC:    DataPath.ALU_DEC,
-        Opcode.NOT:    DataPath.ALU_NOT,
+        Opcode.INC: DataPath.ALU_INC,
+        Opcode.DEC: DataPath.ALU_DEC,
+        Opcode.NOT: DataPath.ALU_NOT,
         Opcode.SHIFTL: DataPath.ALU_SHL,
         Opcode.SHIFTR: DataPath.ALU_SHR,
     }
 
-    _FLUSH_OPS = frozenset({
-        Opcode.HALT, Opcode.JUMP, Opcode.CALL, Opcode.CALL_ACC, Opcode.RET,
-        Opcode.BEQZ, Opcode.BNEZ, Opcode.BGTZ, Opcode.BLTZ, Opcode.BGEZ,
-        Opcode.BLEZ, Opcode.BVS, Opcode.BVC, Opcode.BCS, Opcode.BCC,
-    })
+    _FLUSH_OPS = frozenset(
+        {
+            Opcode.HALT,
+            Opcode.JUMP,
+            Opcode.CALL,
+            Opcode.CALL_ACC,
+            Opcode.RET,
+            Opcode.BEQZ,
+            Opcode.BNEZ,
+            Opcode.BGTZ,
+            Opcode.BLTZ,
+            Opcode.BGEZ,
+            Opcode.BLEZ,
+            Opcode.BVS,
+            Opcode.BVC,
+            Opcode.BCS,
+            Opcode.BCC,
+        }
+    )
 
     def __init__(self, program, data_path, superscalar=True):
         self.program_memory = list(program)
@@ -66,7 +100,6 @@ class ControlUnit:
         self._log_io = []
 
         data_path._cu = self
-
 
     def signal_latch_pc(self, value):
         self.pc = value
@@ -99,7 +132,6 @@ class ControlUnit:
     def tick(self):
         self._tick += 1
 
-
     def _read_instr_word(self, ba):
         m = self.program_memory
         b0 = m[ba] if ba < len(m) else 0
@@ -114,7 +146,6 @@ class ControlUnit:
     def _ir_arg(self):
         return to_signed24(self.ir & ARG_MASK)
 
-
     def process_next_tick(self):
         dp = self.dp
         self._log_slot_acc = ""
@@ -127,8 +158,11 @@ class ControlUnit:
             return
 
         # IRQ check в начале такта
-        if (self._interrupts_enabled and self._irq
-                and dp.data_memory[IVT_INPUT_ADDR] != 0):
+        if (
+            self._interrupts_enabled
+            and self._irq
+            and dp.data_memory[IVT_INPUT_ADDR] != 0
+        ):
             self._irq = False
             restart_pc = self.pc if self.step == 0 else self.pc - INSTR_BYTES
             self._isr_in_entry = True
@@ -151,7 +185,9 @@ class ControlUnit:
             op = self._ir_opcode()
             if op is None:
                 raise ValueError(f"Неизвестный опкод по PC={prev_pc}: {word:#010x}")
-            self._log_slot_acc = f"FETCH pc={prev_pc} word={word:#010x} -> IR={op.value}"
+            self._log_slot_acc = (
+                f"FETCH pc={prev_pc} word={word:#010x} -> IR={op.value}"
+            )
             self.tick()
             return
 
@@ -160,13 +196,13 @@ class ControlUnit:
         arg = self._ir_arg() if op in INSTRUCTIONS_WITH_ARG else 0
         s = self.step
 
-        if (self.superscalar and op in self._FLUSH_OPS
-                and dp.shadow_addr is not None):
+        if self.superscalar and op in self._FLUSH_OPS and dp.shadow_addr is not None:
             if s == 1:
                 dp.signal_latch_ar(dp.shadow_addr)
                 self._log_slot_shadow = f"flush AR <- SH_ADDR={dp.shadow_addr}"
                 self.signal_step_inc()
-                self.tick(); return
+                self.tick()
+                return
             if s == 2:
                 addr = dp.ar
                 dp.signal_mem_write(DataPath.D_AC_SH)
@@ -174,7 +210,8 @@ class ControlUnit:
                 dp.signal_latch_sh_addr(None)
                 self._log_slot_shadow = f"flush mem[{addr}] <- AC_SH"
                 self.step = 1
-                self.tick(); return
+                self.tick()
+                return
 
         self._log_slot_acc = f"{self._fmt_instr(op, arg)} S{s}"
         if self.superscalar and dp.shadow_addr is not None:
@@ -209,7 +246,9 @@ class ControlUnit:
             dp.signal_latch_ar(ACC_ADDR_SAVE_ADDR)
         elif s == 6:
             dp.signal_mem_write(DataPath.D_ACC_ADDR)
-            self._log_slot_acc = f"ISR save ACC_ADDR -> [{ACC_ADDR_SAVE_ADDR}]={dp.acc_addr}"
+            self._log_slot_acc = (
+                f"ISR save ACC_ADDR -> [{ACC_ADDR_SAVE_ADDR}]={dp.acc_addr}"
+            )
         # NZVC
         elif s == 7:
             dp.signal_latch_ar(NZVC_SAVE_ADDR)
@@ -231,7 +270,6 @@ class ControlUnit:
             return
         self.signal_step_inc()
 
-
     def _execute_step(self, op, arg, s):
         dp = self.dp
 
@@ -239,23 +277,35 @@ class ControlUnit:
             raise StopIteration("HALT")
 
         if op == Opcode.LOAD_IMM:
-            dp.signal_alu_op(DataPath.ALU_PASS_R, DataPath.R_FROM_IR,
-                             ir_arg=arg, update_vc=False)
-            self.signal_step_reset(); return
+            dp.signal_alu_op(
+                DataPath.ALU_PASS_R, DataPath.R_FROM_IR, ir_arg=arg, update_vc=False
+            )
+            self.signal_step_reset()
+            return
         if op == Opcode.INC_SP:
-            dp.signal_inc_sp(); self.signal_step_reset(); return
+            dp.signal_inc_sp()
+            self.signal_step_reset()
+            return
         if op == Opcode.DEC_SP:
-            dp.signal_dec_sp(); self.signal_step_reset(); return
+            dp.signal_dec_sp()
+            self.signal_step_reset()
+            return
         if op in self._ALU_UN:
             dp.signal_alu_op(self._ALU_UN[op], update_vc=False)
-            self.signal_step_reset(); return
+            self.signal_step_reset()
+            return
         if op == Opcode.CLC:
-            dp.signal_clc(); self.signal_step_reset(); return
+            dp.signal_clc()
+            self.signal_step_reset()
+            return
         if op == Opcode.CLV:
-            dp.signal_clv(); self.signal_step_reset(); return
+            dp.signal_clv()
+            self.signal_step_reset()
+            return
 
         if op == Opcode.JUMP:
-            self.signal_latch_pc(arg); return
+            self.signal_latch_pc(arg)
+            return
         cond = self._branch_cond(op)
         if cond is not None:
             if cond:
@@ -290,7 +340,6 @@ class ControlUnit:
 
         raise ValueError(f"Неизвестный опкод: {op}")
 
-
     def _branch_cond(self, op):
         dp = self.dp
         return {
@@ -300,10 +349,10 @@ class ControlUnit:
             Opcode.BLTZ: dp.flag_neg,
             Opcode.BGEZ: not dp.flag_neg,
             Opcode.BLEZ: dp.flag_zero or dp.flag_neg,
-            Opcode.BVS:  dp.flag_overflow,
-            Opcode.BVC:  not dp.flag_overflow,
-            Opcode.BCS:  dp.flag_carry,
-            Opcode.BCC:  not dp.flag_carry,
+            Opcode.BVS: dp.flag_overflow,
+            Opcode.BVC: not dp.flag_overflow,
+            Opcode.BCS: dp.flag_carry,
+            Opcode.BCC: not dp.flag_carry,
         }.get(op)
 
     def _step_load(self, addr, s):
@@ -313,20 +362,26 @@ class ControlUnit:
                 dp.signal_latch_acc_from_shadow()
                 dp.acc_addr = addr
                 self._log_slot_shadow = f"shadow-forward [{addr}]"
-                self.signal_step_reset(); return
+                self.signal_step_reset()
+                return
             if dp.acc_addr == addr:
                 self._log_slot_shadow = f"dead-load-elim [{addr}]"
-                self.signal_step_reset(); return
+                self.signal_step_reset()
+                return
 
         if s == 1:
-            dp.signal_latch_ar(addr); self.signal_step_inc(); return
+            dp.signal_latch_ar(addr)
+            self.signal_step_inc()
+            return
         if s == 2:
-            dp.signal_latch_dr_from_mem(); self.signal_step_inc(); return
+            dp.signal_latch_dr_from_mem()
+            self.signal_step_inc()
+            return
         if s == 3:
             dp.signal_alu_op(DataPath.ALU_PASS_R, DataPath.R_DR, update_vc=False)
             dp.acc_addr = addr
-            self.signal_step_reset(); return
-
+            self.signal_step_reset()
+            return
 
     def _step_store(self, addr, s):
         dp = self.dp
@@ -338,16 +393,19 @@ class ControlUnit:
                 dp.signal_latch_sh_addr(addr)
                 dp.signal_latch_acc_addr(DataPath.AA_SH_ADDR)
                 self._log_slot_shadow = f"deferred-store [{addr}]={dp.acc}"
-                self.signal_step_reset(); return
+                self.signal_step_reset()
+                return
             if dp.shadow_addr == addr:
                 dp.signal_latch_acc_sh_from_acc()
                 self._log_slot_shadow = f"shadow-overwrite [{addr}]={dp.acc}"
-                self.signal_step_reset(); return
+                self.signal_step_reset()
+                return
 
             old = dp.shadow_addr
             dp.signal_latch_ar(old)
             self._log_slot_shadow = f"parallel: AR<-SH_ADDR={old}"
-            self.signal_step_inc(); return
+            self.signal_step_inc()
+            return
         if self.superscalar and not mmio and s == 2:
             dp.signal_mem_write(DataPath.D_AC_SH)
             dp.signal_latch_acc_sh_from_acc()
@@ -356,69 +414,92 @@ class ControlUnit:
             self._log_slot_shadow = (
                 f"parallel: mem[{dp.ar}]<-AC_SH || store->[{addr}]={dp.acc}"
             )
-            self.signal_step_reset(); return
+            self.signal_step_reset()
+            return
 
         if s == 1:
-            dp.signal_latch_ar(addr); self.signal_step_inc(); return
+            dp.signal_latch_ar(addr)
+            self.signal_step_inc()
+            return
         if s == 2:
             dp.signal_mem_write(DataPath.D_ACC)
             if not mmio:
                 dp.signal_latch_acc_addr(DataPath.AA_AR)
-            self.signal_step_reset(); return
-
+            self.signal_step_reset()
+            return
 
     def _step_store_ind(self, arg, s):
         dp = self.dp
         if s == 1:
-            dp.signal_latch_ar(arg); self.signal_step_inc(); return
+            dp.signal_latch_ar(arg)
+            self.signal_step_inc()
+            return
         if s == 2:
             dp.signal_latch_dr_from_mem()
             self._ind_target = dp.dr
-            self.signal_step_inc(); return
+            self.signal_step_inc()
+            return
         return self._step_store(self._ind_target, s - 2)
-
 
     def _step_alu_bin(self, op, addr, s):
         dp = self.dp
         alu_op, upd_vc = self._ALU_BIN[op]
-        if (self.superscalar and s == 1
-                and dp.shadow_addr is not None and dp.shadow_addr == addr):
+        if (
+            self.superscalar
+            and s == 1
+            and dp.shadow_addr is not None
+            and dp.shadow_addr == addr
+        ):
             dp.signal_alu_op(alu_op, DataPath.R_AC_SH, update_vc=upd_vc)
             self._log_slot_shadow = f"alu-shadow-forward [{addr}]"
-            self.signal_step_reset(); return
+            self.signal_step_reset()
+            return
         if s == 1:
-            dp.signal_latch_ar(addr); self.signal_step_inc(); return
+            dp.signal_latch_ar(addr)
+            self.signal_step_inc()
+            return
         if s == 2:
-            dp.signal_latch_dr_from_mem(); self.signal_step_inc(); return
+            dp.signal_latch_dr_from_mem()
+            self.signal_step_inc()
+            return
         if s == 3:
             dp.signal_alu_op(alu_op, DataPath.R_DR, update_vc=upd_vc)
-            self.signal_step_reset(); return
-
+            self.signal_step_reset()
+            return
 
     def _step_call(self, target, s):
         dp = self.dp
         if s == 1:
-            dp.signal_dec_rsp(); self.signal_step_inc(); return
+            dp.signal_dec_rsp()
+            self.signal_step_inc()
+            return
         if s == 2:
-            dp.signal_latch_ar(dp.rsp); self.signal_step_inc(); return
+            dp.signal_latch_ar(dp.rsp)
+            self.signal_step_inc()
+            return
         if s == 3:
             dp.signal_mem_write(DataPath.D_FROM_PC, from_pc_value=self.pc)
-            self.signal_step_inc(); return
+            self.signal_step_inc()
+            return
         if s == 4:
-            self.signal_latch_pc(target); return
-
+            self.signal_latch_pc(target)
+            return
 
     def _step_ret(self, s):
         dp = self.dp
         if s == 1:
-            dp.signal_latch_ar(dp.rsp); self.signal_step_inc(); return
+            dp.signal_latch_ar(dp.rsp)
+            self.signal_step_inc()
+            return
         if s == 2:
-            dp.signal_latch_dr_from_mem(); self.signal_step_inc(); return
+            dp.signal_latch_dr_from_mem()
+            self.signal_step_inc()
+            return
         if s == 3:
             ret = dp.dr
             dp.signal_inc_rsp()
-            self.signal_latch_pc(ret); return
-
+            self.signal_latch_pc(ret)
+            return
 
     def _step_iret(self, s):
         dp = self.dp
@@ -447,7 +528,9 @@ class ControlUnit:
         elif s == 6:
             dp.signal_latch_dr_from_mem()
             dp.acc_addr = dp.dr
-            self._log_slot_acc = f"IRET ACC_ADDR <- [{ACC_ADDR_SAVE_ADDR}]={dp.acc_addr}"
+            self._log_slot_acc = (
+                f"IRET ACC_ADDR <- [{ACC_ADDR_SAVE_ADDR}]={dp.acc_addr}"
+            )
         elif s == 7:
             dp.signal_latch_ar(NZVC_SAVE_ADDR)
         elif s == 8:
@@ -467,7 +550,6 @@ class ControlUnit:
             self._log_slot_acc = f"IRET ret PC <- {ret}, EI<-1"
             return
         self.signal_step_inc()
-
 
     @staticmethod
     def _fmt_instr(op, arg):
@@ -510,7 +592,9 @@ class ControlUnit:
         )
 
         slot_a = self._log_slot_acc or ("(next) " + self._peek_next_opcode())
-        slot_b = f"  ||  SHADOW: {self._log_slot_shadow}" if self._log_slot_shadow else ""
+        slot_b = (
+            f"  ||  SHADOW: {self._log_slot_shadow}" if self._log_slot_shadow else ""
+        )
         line2 = f"  SLOT-A: {slot_a:<26s}{slot_b}"
 
         if sp < INITIAL_SP:
@@ -522,7 +606,9 @@ class ControlUnit:
                     extras.append(dp.data_memory[addr])
                 else:
                     break
-            extras_str = "  [" + "  ".join(f"{v:6d}" for v in extras) + "]" if extras else ""
+            extras_str = (
+                "  [" + "  ".join(f"{v:6d}" for v in extras) + "]" if extras else ""
+            )
             stack_line = f"  STACK:  TOS={tos:10d}{extras_str}"
         else:
             stack_line = "  STACK:  <empty>"

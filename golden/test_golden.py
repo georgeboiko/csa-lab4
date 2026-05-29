@@ -7,15 +7,16 @@ import io
 import logging
 import sys
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from translator import main as translator_main
 from machine import main as machine_main
 
+
 @pytest.mark.golden_test("*.yml")
 def test_golden(golden, caplog):
     caplog.set_level(logging.DEBUG)
-    
+
     with tempfile.TemporaryDirectory() as tmpdir:
         source_file = os.path.join(tmpdir, "source.fth")
         input_file = os.path.join(tmpdir, "input.json")
@@ -30,12 +31,15 @@ def test_golden(golden, caplog):
 
         with contextlib.redirect_stdout(io.StringIO()) as stdout:
             translator_main(source_file, target_file, memory_file)
-        
+
         translator_output = stdout.getvalue()
 
-        with contextlib.redirect_stdout(io.StringIO()) as stdout, contextlib.redirect_stderr(io.StringIO()) as stderr:
+        with (
+            contextlib.redirect_stdout(io.StringIO()) as stdout,
+            contextlib.redirect_stderr(io.StringIO()) as stderr,
+        ):
             machine_main(target_file, memory_file, input_file)
-        
+
         machine_output = stdout.getvalue()
         machine_err = stderr.getvalue()
 

@@ -15,6 +15,7 @@ from config import *
 from datapath import DataPath
 from control_unit import ControlUnit
 
+
 def simulation(
     code: bytes,
     data_memory: list[int],
@@ -48,7 +49,12 @@ def simulation(
                 ch = chr(char) if 32 <= char < 127 else f"\\x{char:02x}"
                 logger.debug(
                     "  [TRAP] tick=%d (scheduled=%d) char=%d (%r) -> mem[%d], ISR@%d",
-                    cu.current_tick(), sched_tick, char, ch, INPUT_ADDR, isr_addr,
+                    cu.current_tick(),
+                    sched_tick,
+                    char,
+                    ch,
+                    INPUT_ADDR,
+                    isr_addr,
                 )
                 cu.trigger_interrupt()
 
@@ -102,7 +108,7 @@ def main(code_file: str, memory_file: str, input_file: str, superscalar: bool = 
     data_memory = []
     for i in range(0, len(raw), 4):
         if i + 3 < len(raw):
-            word = (raw[i] << 24) | (raw[i+1] << 16) | (raw[i+2] << 8) | raw[i+3]
+            word = (raw[i] << 24) | (raw[i + 1] << 16) | (raw[i + 2] << 8) | raw[i + 3]
             data_memory.append(to_signed32(word))
 
     isr_addr_from_ivt = data_memory[IVT_INPUT_ADDR] if data_memory else 0
@@ -120,10 +126,10 @@ def main(code_file: str, memory_file: str, input_file: str, superscalar: bool = 
         pass
 
     output_tokens, ticks = simulation(
-        code = code,
-        data_memory = data_memory,
-        input_schedule = input_schedule,
-        superscalar = superscalar,
+        code=code,
+        data_memory=data_memory,
+        input_schedule=input_schedule,
+        superscalar=superscalar,
     )
 
     output_str = "".join(
@@ -141,7 +147,7 @@ if __name__ == "__main__":
         format="%(message)s",
     )
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    assert len(args) == 3, (
-        "Использование: machine.py <code.bin> <memory.bin> <input.txt> [--debug] [--no-superscalar]"
-    )
+    assert (
+        len(args) == 3
+    ), "Использование: machine.py <code.bin> <memory.bin> <input.txt> [--debug] [--no-superscalar]"
     main(*args, superscalar="--no-superscalar" not in sys.argv)

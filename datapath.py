@@ -23,7 +23,12 @@ class DataPath:
 
     # sel_data
     D_ACC, D_AC_SH, D_SH_ADDR, D_ACC_ADDR, D_NZVC, D_FROM_PC = (
-        "acc", "ac_sh", "sh_addr", "acc_addr", "nzvc", "from_pc"
+        "acc",
+        "ac_sh",
+        "sh_addr",
+        "acc_addr",
+        "nzvc",
+        "from_pc",
     )
 
     # sel_acc_addr
@@ -47,26 +52,34 @@ class DataPath:
         self.nzvc = 0
         self._cu = None
 
+    @property
+    def flag_neg(self):
+        return bool(self.nzvc & N_BIT)
 
     @property
-    def flag_neg(self): return bool(self.nzvc & N_BIT)
+    def flag_zero(self):
+        return bool(self.nzvc & Z_BIT)
+
     @property
-    def flag_zero(self): return bool(self.nzvc & Z_BIT)
+    def flag_overflow(self):
+        return bool(self.nzvc & V_BIT)
+
     @property
-    def flag_overflow(self): return bool(self.nzvc & V_BIT)
-    @property
-    def flag_carry(self): return bool(self.nzvc & C_BIT)
+    def flag_carry(self):
+        return bool(self.nzvc & C_BIT)
 
     def _set_nz(self, val):
-        self.nzvc = (self.nzvc & 0b0011) | (N_BIT if val < 0 else 0) | (Z_BIT if val == 0 else 0)
+        self.nzvc = (
+            (self.nzvc & 0b0011)
+            | (N_BIT if val < 0 else 0)
+            | (Z_BIT if val == 0 else 0)
+        )
 
     def _set_vc(self, ov, cy):
         self.nzvc = (self.nzvc & 0b1100) | (V_BIT if ov else 0) | (C_BIT if cy else 0)
 
-
     def signal_latch_ar(self, value):
         self.ar = value
-
 
     def signal_latch_dr_from_mem(self):
         addr = self.ar
@@ -81,7 +94,6 @@ class DataPath:
             self.dr = val
             return
         self.dr = self.data_memory[addr]
-
 
     def signal_mem_write(self, sel_data, from_pc_value=0):
         if sel_data == self.D_ACC:
@@ -110,7 +122,6 @@ class DataPath:
             return
         self.data_memory[addr] = val
 
-
     def signal_latch_acc_addr(self, source):
         if source == self.AA_AR:
             self.acc_addr = self.ar
@@ -124,7 +135,6 @@ class DataPath:
     def signal_latch_sh_addr(self, value):
         self.shadow_addr = value
 
-
     def signal_latch_acc_sh_from_acc(self):
         self.ac_shadow = self.acc
 
@@ -133,7 +143,6 @@ class DataPath:
 
     def signal_clear_acc_sh(self):
         self.ac_shadow = 0
-
 
     def signal_alu_op(self, op, sel_alu_r=R_DR, ir_arg=0, update_vc=True):
         if sel_alu_r == self.R_FROM_IR:
@@ -159,7 +168,7 @@ class DataPath:
         elif op == self.ALU_MUL:
             result = a * r
             res32 = to_signed32(result)
-            ov = (result != res32)
+            ov = result != res32
             cy = bool((result >> 32) & MASK32)
         elif op == self.ALU_DIV:
             if r == 0:
@@ -199,15 +208,23 @@ class DataPath:
     def signal_latch_acc_from_shadow(self):
         self.acc = to_signed32(self.ac_shadow)
 
+    def signal_inc_sp(self):
+        self.sp += 4
 
-    def signal_inc_sp(self): self.sp += 4
-    def signal_dec_sp(self): self.sp -= 4
-    def signal_inc_rsp(self): self.rsp += 4
-    def signal_dec_rsp(self): self.rsp -= 4
+    def signal_dec_sp(self):
+        self.sp -= 4
 
+    def signal_inc_rsp(self):
+        self.rsp += 4
 
-    def signal_clc(self): self.nzvc &= ~C_BIT
-    def signal_clv(self): self.nzvc &= ~V_BIT
+    def signal_dec_rsp(self):
+        self.rsp -= 4
+
+    def signal_clc(self):
+        self.nzvc &= ~C_BIT
+
+    def signal_clv(self):
+        self.nzvc &= ~V_BIT
 
     def signal_latch_nzvc_from_dr(self):
         self.nzvc = (self.dr or 0) & 0xF

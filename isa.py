@@ -8,6 +8,7 @@ ISA - инструкции фиксированной длины 32 бита.
 Память команд поддерживает побайтовую адресацию, PC всегда инкрементируется на 4.
 """
 
+
 class Opcode(str, Enum):
     HALT = "halt"
 
@@ -61,15 +62,34 @@ class Opcode(str, Enum):
     def __str__(self):
         return str(self.value)
 
+
 opcode_to_binary = {op: i for i, op in enumerate(Opcode)}
 binary_to_opcode = {i: op for i, op in enumerate(Opcode)}
 
 INSTRUCTIONS_WITH_ARG = {
-    Opcode.LOAD, Opcode.LOAD_IMM, Opcode.STORE, Opcode.STORE_IND,
-    Opcode.ADD, Opcode.SUB, Opcode.MUL, Opcode.DIV, Opcode.MOD,
-    Opcode.AND, Opcode.OR, Opcode.XOR,
-    Opcode.JUMP, Opcode.BEQZ, Opcode.BNEZ, Opcode.BGTZ, Opcode.BLTZ,
-    Opcode.BGEZ, Opcode.BLEZ, Opcode.BVS, Opcode.BVC, Opcode.BCS, Opcode.BCC,
+    Opcode.LOAD,
+    Opcode.LOAD_IMM,
+    Opcode.STORE,
+    Opcode.STORE_IND,
+    Opcode.ADD,
+    Opcode.SUB,
+    Opcode.MUL,
+    Opcode.DIV,
+    Opcode.MOD,
+    Opcode.AND,
+    Opcode.OR,
+    Opcode.XOR,
+    Opcode.JUMP,
+    Opcode.BEQZ,
+    Opcode.BNEZ,
+    Opcode.BGTZ,
+    Opcode.BLTZ,
+    Opcode.BGEZ,
+    Opcode.BLEZ,
+    Opcode.BVS,
+    Opcode.BVC,
+    Opcode.BCS,
+    Opcode.BCC,
     Opcode.CALL,
 }
 
@@ -110,14 +130,17 @@ def to_bytes(code: list[dict]) -> bytes:
 
     for instr in code:
         word = encode_instr(instr["opcode"], instr.get("arg", 0))
-        binary_bytes.extend([
-            (word >> 24) & 0xFF,
-            (word >> 16) & 0xFF,
-            (word >> 8) & 0xFF,
-            word & 0xFF,
-        ])
+        binary_bytes.extend(
+            [
+                (word >> 24) & 0xFF,
+                (word >> 16) & 0xFF,
+                (word >> 8) & 0xFF,
+                word & 0xFF,
+            ]
+        )
 
     return bytes(binary_bytes)
+
 
 def to_bytes_memory(memory: list[int]) -> bytes:
     """
@@ -126,14 +149,12 @@ def to_bytes_memory(memory: list[int]) -> bytes:
     binary_bytes = bytearray()
 
     for val in memory:
-        binary_bytes.extend([
-            (val >> 24) & 0xFF,
-            (val >> 16) & 0xFF,
-            (val >> 8) & 0xFF,
-            val & 0xFF
-        ])
+        binary_bytes.extend(
+            [(val >> 24) & 0xFF, (val >> 16) & 0xFF, (val >> 8) & 0xFF, val & 0xFF]
+        )
 
     return bytes(binary_bytes)
+
 
 def to_hex_memory(memory: list[int]) -> str:
     """
@@ -147,10 +168,16 @@ def to_hex_memory(memory: list[int]) -> str:
         if i + 3 >= len(binary_memory):
             break
 
-        word = (binary_memory[i] << 24) | (binary_memory[i+1] << 16) | (binary_memory[i+2] << 8) | binary_memory[i+3]
+        word = (
+            (binary_memory[i] << 24)
+            | (binary_memory[i + 1] << 16)
+            | (binary_memory[i + 2] << 8)
+            | binary_memory[i + 3]
+        )
         result.append(f"{(i // 4):04} - {word:08X}")
 
     return "\n".join(result)
+
 
 def to_hex(code: list[dict]) -> str:
     """
