@@ -33,6 +33,7 @@ jobs:
 
       - name: Run tests
         env:
-          SPARSE_LOG: "true"
-        run: pytest -v -k "not prob1"
+          PART_LOG: "true"
+          LOG_SIZE: "1000"
+        run: pytest -v
         timeout-minutes: 20

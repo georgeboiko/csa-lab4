@@ -32,29 +32,22 @@ def simulation(
 ) -> tuple[list[int], int]:
     dp = DataPath(data_memory)
     cu = ControlUnit(code, dp, superscalar=superscalar)
+    logger.debug("Superscalar mode: %s", "ON" if superscalar else "OFF")
+    
+    PART_LOG = os.environ.get("PART_LOG", "").lower() == "true"
+    LOG_SIZE = int(os.environ.get("LOG_SIZE", "1000"))
+    log_counter = 0
 
-    SPARSE_LOG = os.environ.get("SPARSE_LOG", "").lower() == "true"
-    LOG_INTERVAL = int(os.environ.get("LOG_INTERVAL", "1000"))
-
-    trace_buffer = []
-    _SEP = "─" * 72
-
-    trace_buffer.append(f"Superscalar mode: {'ON' if superscalar else 'OFF'}")
-    trace_buffer.append(f"Sparse logging: {'ON' if SPARSE_LOG else 'OFF'} (every {LOG_INTERVAL} ticks)")
-
-    # Читаем адрес ISR из таблицы векторов прерываний
+    # Читаем адрес ISR из таблицы векторов прерываний (mem[IVT_INPUT_ADDR]).
     isr_addr: int | None = dp.data_memory[IVT_INPUT_ADDR] or None
     if isr_addr is not None:
         cu.enable_interrupts()
-        trace_buffer.append(f"Trap mode: ISR addr={isr_addr} (from IVT[0])")
+        logger.debug("Trap mode: ISR addr=%d (from IVT[0])", isr_addr)
 
+    _SEP = "─" * 72
     logger.debug("%s\n%s", _SEP, cu)
-
-    last_log_tick = 0
-
     try:
         while cu.current_tick() < limit:
-            # Обработка прерываний
             if (
                 isr_addr is not None
                 and input_schedule
@@ -65,35 +58,30 @@ def simulation(
                 sched_tick, char = input_schedule.pop(0)
                 dp.data_memory[INPUT_ADDR] = char
                 ch = chr(char) if 32 <= char < 127 else f"\\x{char:02x}"
-                trace_buffer.append(
-                    f"  [TRAP] tick={cu.current_tick()} "
-                    f"(scheduled={sched_tick}) "
-                    f"char={char} ({ch!r}) "
-                    f"-> mem[{INPUT_ADDR}], ISR@{isr_addr}"
+                logger.debug(
+                    "  [TRAP] tick=%d (scheduled=%d) char=%d (%r) -> mem[%d], ISR@%d",
+                    cu.current_tick(),
+                    sched_tick,
+                    char,
+                    ch,
+                    INPUT_ADDR,
+                    isr_addr,
                 )
                 cu.trigger_interrupt()
 
             cu.process_next_tick()
-
-            if SPARSE_LOG:
-                if cu.current_tick() - last_log_tick >= LOG_INTERVAL:
-                    trace_buffer.append(f"{_SEP}\n{cu}")
-                    last_log_tick = cu.current_tick()
-            else:
-                trace_buffer.append(f"{_SEP}\n{cu}")
-
+            
+            if not PART_LOG or log_counter < LOG_SIZE:
+                logger.debug("%s\n%s", _SEP, cu)
+                log_counter += 1
+                
     except EOFError:
         logger.warning("Input buffer is empty!")
     except StopIteration:
         pass
 
-    if SPARSE_LOG and trace_buffer:
-        trace_buffer.append(f"\n{_SEP}\nFINAL STATE at tick={cu.current_tick()}:\n{cu}")
-
     if cu.current_tick() >= limit:
         logger.warning("Limit exceeded! PC=%d", cu.pc)
-
-    logger.debug("\n".join(trace_buffer))
 
     logger.info("output_buffer: %s", repr(cu.dp.output_buffer))
 
