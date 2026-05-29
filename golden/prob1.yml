@@ -90,13 +90,13 @@ machine_err: |2
   ticks: 6590280
 
 log: |-
-  INFO     config:machine.py:127 IVT[0]=0
-  INFO     config:machine.py:136 Loaded input schedule: []
-  DEBUG    config:machine.py:48 ────────────────────────────────────────────────────────────────────────
+  INFO     config:machine.py:125 IVT[0]=0
+  INFO     config:machine.py:134 Loaded input schedule: []
+  DEBUG    config:machine.py:46 ────────────────────────────────────────────────────────────────────────
   TICK:    0  PC:    0/S0  IR:-          ARG:         0  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
     SLOT-A: (next) jump 2764          
     STACK:  <empty>
-  DEBUG    config:machine.py:81 Superscalar mode: ON
+  DEBUG    config:machine.py:79 Superscalar mode: ON
   ────────────────────────────────────────────────────────────────────────
   TICK:    1  PC:    4/S1  IR:jump       ARG:      2764  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0
     SLOT-A: FETCH pc=0 word=0x19000acc -> IR=jump
@@ -272,8 +272,8 @@ log: |-
   TICK:6590280  PC: 2776/S1  IR:-          ARG:         0  ACC:           1  SP: 8191  RSP: 4095  NZVC=0b0000  EI=0 IRQ=0  RS: 0  ACC@[8187]
     SLOT-A: FETCH pc=2772 word=0x00000000 -> IR=halt
     STACK:  <empty>
-  INFO     config:machine.py:83 output_buffer: [57, 48, 54, 54, 48, 57]
-  INFO     config:machine.py:96 data memory dump (addr: value):
+  INFO     config:machine.py:81 output_buffer: [57, 48, 54, 54, 48, 57]
+  INFO     config:machine.py:94 data memory dump (addr: value):
     [   0] = 0
     [   1] = 0
     [   2] = 0

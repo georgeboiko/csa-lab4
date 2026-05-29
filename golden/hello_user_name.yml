@@ -66,13 +66,13 @@ machine_err: |2
   ticks: 5149
 
 log: |-
-  INFO     config:machine.py:127 IVT[0]=4
-  INFO     config:machine.py:136 Loaded input schedule: [(200, 65), (400, 108), (600, 105), (800, 99), (1000, 101), (1200, 10), (1400, 0)]
-  DEBUG    config:machine.py:48 ────────────────────────────────────────────────────────────────────────
+  INFO     config:machine.py:125 IVT[0]=4
+  INFO     config:machine.py:134 Loaded input schedule: [(200, 65), (400, 108), (600, 105), (800, 99), (1000, 101), (1200, 10), (1400, 0)]
+  DEBUG    config:machine.py:46 ────────────────────────────────────────────────────────────────────────
   TICK:    0  PC:    0/S0  IR:-          ARG:         0  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=1 IRQ=0  RS: 0
     SLOT-A: (next) jump 828           
     STACK:  <empty>
-  DEBUG    config:machine.py:81 Superscalar mode: ON
+  DEBUG    config:machine.py:79 Superscalar mode: ON
   Trap mode: ISR addr=4 (from IVT[0])
   ────────────────────────────────────────────────────────────────────────
   TICK:    1  PC:    4/S1  IR:jump       ARG:       828  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=1 IRQ=0  RS: 0
@@ -229,8 +229,8 @@ log: |-
   TICK: 5149  PC: 1136/S1  IR:-          ARG:         0  ACC:          10  SP: 8191  RSP: 4095  NZVC=0b0000  EI=1 IRQ=0  RS: 0  ACC@[8187]
     SLOT-A: (next) <eop>                ||  SHADOW: flush mem[8187] <- AC_SH
     STACK:  <empty>
-  INFO     config:machine.py:83 output_buffer: [87, 104, 97, 116, 32, 105, 115, 32, 121, 111, 117, 114, 32, 110, 97, 109, 101, 63, 10, 72, 101, 108, 108, 111, 44, 32, 65, 108, 105, 99, 101, 33, 10]
-  INFO     config:machine.py:96 data memory dump (addr: value):
+  INFO     config:machine.py:81 output_buffer: [87, 104, 97, 116, 32, 105, 115, 32, 121, 111, 117, 114, 32, 110, 97, 109, 101, 63, 10, 72, 101, 108, 108, 111, 44, 32, 65, 108, 105, 99, 101, 33, 10]
+  INFO     config:machine.py:94 data memory dump (addr: value):
     [   0] = 4
     [   1] = 0
     [   2] = 0

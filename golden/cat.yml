@@ -49,13 +49,13 @@ machine_err: |2
   ticks: 4585
 
 log: |-
-  INFO     config:machine.py:127 IVT[0]=4
-  INFO     config:machine.py:136 Loaded input schedule: [(10, 72), (410, 101), (810, 108), (1210, 108), (1610, 111), (2010, 44), (2410, 32), (2810, 99), (3210, 97), (3610, 116), (4010, 33), (4410, 0)]
-  DEBUG    config:machine.py:48 ────────────────────────────────────────────────────────────────────────
+  INFO     config:machine.py:125 IVT[0]=4
+  INFO     config:machine.py:134 Loaded input schedule: [(10, 72), (410, 101), (810, 108), (1210, 108), (1610, 111), (2010, 44), (2410, 32), (2810, 99), (3210, 97), (3610, 116), (4010, 33), (4410, 0)]
+  DEBUG    config:machine.py:46 ────────────────────────────────────────────────────────────────────────
   TICK:    0  PC:    0/S0  IR:-          ARG:         0  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=1 IRQ=0  RS: 0
     SLOT-A: (next) jump 504           
     STACK:  <empty>
-  DEBUG    config:machine.py:81 Superscalar mode: ON
+  DEBUG    config:machine.py:79 Superscalar mode: ON
   Trap mode: ISR addr=4 (from IVT[0])
   ────────────────────────────────────────────────────────────────────────
   TICK:    1  PC:    4/S1  IR:jump       ARG:       504  ACC:           0  SP: 8191  RSP: 4095  NZVC=0b0000  EI=1 IRQ=0  RS: 0
@@ -237,8 +237,8 @@ log: |-
   TICK: 4585  PC:  512/S1  IR:-          ARG:         0  ACC:           1  SP: 8191  RSP: 4095  NZVC=0b0000  EI=1 IRQ=0  RS: 0  ACC@[8187]
     SLOT-A: FETCH pc=508 word=0x00000000 -> IR=halt
     STACK:  <empty>
-  INFO     config:machine.py:83 output_buffer: [72, 101, 108, 108, 111, 44, 32, 99, 97, 116, 33]
-  INFO     config:machine.py:96 data memory dump (addr: value):
+  INFO     config:machine.py:81 output_buffer: [72, 101, 108, 108, 111, 44, 32, 99, 97, 116, 33]
+  INFO     config:machine.py:94 data memory dump (addr: value):
     [   0] = 4
     [   1] = 1
     [   2] = 0
