@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from config import (
     ACC_ADDR_SAVE_ADDR,
     ACC_SAVE_ADDR,
@@ -17,7 +19,6 @@ from isa import (
     binary_to_opcode,
     to_signed24,
 )
-from typing import ClassVar
 
 
 class ControlUnit:

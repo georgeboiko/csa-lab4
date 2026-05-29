@@ -11,9 +11,15 @@
 import json
 import sys
 
-from config import INPUT_ADDR, IVT_INPUT_ADDR, logger, logging, to_signed32
-from datapath import DataPath
+from config import (
+    INPUT_ADDR,
+    IVT_INPUT_ADDR,
+    logger,
+    logging,
+    to_signed32,
+)
 from control_unit import ControlUnit
+from datapath import DataPath
 
 
 def simulation(

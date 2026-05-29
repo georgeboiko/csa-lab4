@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 
 class Node:
@@ -42,7 +41,7 @@ class IsrDefNode(Node):
 @dataclass
 class IfNode(Node):
     true_branch: list[Node]
-    false_branch: Optional[list[Node]]
+    false_branch: list[Node] | None
 
 
 @dataclass
