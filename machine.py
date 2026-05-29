@@ -33,7 +33,7 @@ def simulation(
     dp = DataPath(data_memory)
     cu = ControlUnit(code, dp, superscalar=superscalar)
     logger.debug("Superscalar mode: %s", "ON" if superscalar else "OFF")
-    
+
     PART_LOG = os.environ.get("PART_LOG", "").lower() == "true"
     LOG_SIZE = int(os.environ.get("LOG_SIZE", "1000"))
     log_counter = 0
@@ -70,11 +70,11 @@ def simulation(
                 cu.trigger_interrupt()
 
             cu.process_next_tick()
-            
+
             if not PART_LOG or log_counter < LOG_SIZE:
                 logger.debug("%s\n%s", _SEP, cu)
                 log_counter += 1
-                
+
     except EOFError:
         logger.warning("Input buffer is empty!")
     except StopIteration:
