@@ -13,7 +13,6 @@ from utils.ast_nodes import (
 
 
 class Parser:
-
     CLOSING_TOKENS = (";", "until", "else", "endif")
 
     RESERVED_WORDS = (
@@ -75,13 +74,9 @@ class Parser:
     def read_and_validate_name(self, context: str) -> str:
         name = self.current_token()
         if name is None or name in self.CLOSING_TOKENS:
-            raise SyntaxError(
-                f"Ожидалось имя {context}, а встречен конец блока или файла."
-            )
+            raise SyntaxError(f"Ожидалось имя {context}, а встречен конец блока или файла.")
         if name in self.RESERVED_WORDS:
-            raise SyntaxError(
-                f"Нельзя использовать зарезервированное слово '{name}' как имя {context}!"
-            )
+            raise SyntaxError(f"Нельзя использовать зарезервированное слово '{name}' как имя {context}!")
         self.advance()
         return name
 
@@ -89,9 +84,7 @@ class Parser:
         nodes = self.parse_block()
 
         if self.current_token() is not None:
-            raise SyntaxError(
-                f"Синтаксическая ошибка: лишнее слово '{self.current_token()}' вне любого блока!"
-            )
+            raise SyntaxError(f"Синтаксическая ошибка: лишнее слово '{self.current_token()}' вне любого блока!")
 
         return nodes
 

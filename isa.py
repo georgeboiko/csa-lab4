@@ -149,9 +149,7 @@ def to_bytes_memory(memory: list[int]) -> bytes:
     binary_bytes = bytearray()
 
     for val in memory:
-        binary_bytes.extend(
-            [(val >> 24) & 0xFF, (val >> 16) & 0xFF, (val >> 8) & 0xFF, val & 0xFF]
-        )
+        binary_bytes.extend([(val >> 24) & 0xFF, (val >> 16) & 0xFF, (val >> 8) & 0xFF, val & 0xFF])
 
     return bytes(binary_bytes)
 
@@ -169,10 +167,7 @@ def to_hex_memory(memory: list[int]) -> str:
             break
 
         word = (
-            (binary_memory[i] << 24)
-            | (binary_memory[i + 1] << 16)
-            | (binary_memory[i + 2] << 8)
-            | binary_memory[i + 3]
+            (binary_memory[i] << 24) | (binary_memory[i + 1] << 16) | (binary_memory[i + 2] << 8) | binary_memory[i + 3]
         )
         result.append(f"{(i // 4):04} - {word:08X}")
 
@@ -191,12 +186,7 @@ def to_hex(code: list[dict]) -> str:
     while i < len(binary_code):
         if i + INSTR_BYTES > len(binary_code):
             break
-        word = (
-            (binary_code[i] << 24)
-            | (binary_code[i + 1] << 16)
-            | (binary_code[i + 2] << 8)
-            | binary_code[i + 3]
-        )
+        word = (binary_code[i] << 24) | (binary_code[i + 1] << 16) | (binary_code[i + 2] << 8) | binary_code[i + 3]
         opcode_bin = (word >> 24) & 0xFF
         opcode = binary_to_opcode.get(opcode_bin)
         if opcode is None:
@@ -222,12 +212,7 @@ def from_bytes(binary_code: bytes) -> list[dict]:
     structured_code: list[dict] = []
     i = 0
     while i + INSTR_BYTES <= len(binary_code):
-        word = (
-            (binary_code[i] << 24)
-            | (binary_code[i + 1] << 16)
-            | (binary_code[i + 2] << 8)
-            | binary_code[i + 3]
-        )
+        word = (binary_code[i] << 24) | (binary_code[i + 1] << 16) | (binary_code[i + 2] << 8) | binary_code[i + 3]
         opcode_bin = (word >> 24) & 0xFF
         opcode = binary_to_opcode.get(opcode_bin)
         if opcode is None:

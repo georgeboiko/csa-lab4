@@ -78,11 +78,7 @@ class DataPath:
         return bool(self.nzvc & C_BIT)
 
     def _set_nz(self, val):
-        self.nzvc = (
-            (self.nzvc & 0b0011)
-            | (N_BIT if val < 0 else 0)
-            | (Z_BIT if val == 0 else 0)
-        )
+        self.nzvc = (self.nzvc & 0b0011) | (N_BIT if val < 0 else 0) | (Z_BIT if val == 0 else 0)
 
     def _set_vc(self, ov, cy):
         self.nzvc = (self.nzvc & 0b1100) | (V_BIT if ov else 0) | (C_BIT if cy else 0)

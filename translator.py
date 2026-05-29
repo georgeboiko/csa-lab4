@@ -72,9 +72,6 @@ def main(source, target, memory_target):
 
 
 if __name__ == "__main__":
-    assert (
-        len(sys.argv) == 4
-    ), "Wrong arguments: translator.py <input_file> <target_file> <memory_file>"
+    assert len(sys.argv) == 4, "Wrong arguments: translator.py <input_file> <target_file> <memory_file>"
     _, source, target, memory_target = sys.argv
     main(source, target, memory_target)
-

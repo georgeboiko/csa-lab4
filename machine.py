@@ -138,10 +138,7 @@ def main(code_file: str, memory_file: str, input_file: str, superscalar: bool = 
         superscalar=superscalar,
     )
 
-    output_str = "".join(
-        chr(v & 0xFF) if 0 <= (v & 0xFF) < 128 else f"\\x{v & 0xFF:02x}"
-        for v in output_tokens
-    )
+    output_str = "".join(chr(v & 0xFF) if 0 <= (v & 0xFF) < 128 else f"\\x{v & 0xFF:02x}" for v in output_tokens)
     print(output_str, end="")
     print(f"\noutput: {output_tokens}", file=sys.stderr)
     print(f"ticks: {ticks}", file=sys.stderr)
@@ -153,7 +150,5 @@ if __name__ == "__main__":
         format="%(message)s",
     )
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    assert (
-        len(args) == 3
-    ), "Использование: machine.py <code.bin> <memory.bin> <input.txt> [--debug] [--no-superscalar]"
+    assert len(args) == 3, "Использование: machine.py <code.bin> <memory.bin> <input.txt> [--debug] [--no-superscalar]"
     main(*args, superscalar="--no-superscalar" not in sys.argv)

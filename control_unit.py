@@ -22,7 +22,6 @@ from isa import (
 
 
 class ControlUnit:
-
     _ALWAYS_SHOW_ARG = frozenset(
         {
             Opcode.LOAD_IMM,
@@ -169,11 +168,7 @@ class ControlUnit:
             return
 
         # IRQ check в начале такта
-        if (
-            self._interrupts_enabled
-            and self._irq
-            and dp.data_memory[IVT_INPUT_ADDR] != 0
-        ):
+        if self._interrupts_enabled and self._irq and dp.data_memory[IVT_INPUT_ADDR] != 0:
             self._irq = False
             restart_pc = self.pc if self.step == 0 else self.pc - INSTR_BYTES
             self._isr_in_entry = True
@@ -196,9 +191,7 @@ class ControlUnit:
             op = self._ir_opcode()
             if op is None:
                 raise ValueError(f"Неизвестный опкод по PC={prev_pc}: {word:#010x}")
-            self._log_slot_acc = (
-                f"FETCH pc={prev_pc} word={word:#010x} -> IR={op.value}"
-            )
+            self._log_slot_acc = f"FETCH pc={prev_pc} word={word:#010x} -> IR={op.value}"
             self.tick()
             return
 
@@ -257,9 +250,7 @@ class ControlUnit:
             dp.signal_latch_ar(ACC_ADDR_SAVE_ADDR)
         elif s == 6:
             dp.signal_mem_write(DataPath.D_ACC_ADDR)
-            self._log_slot_acc = (
-                f"ISR save ACC_ADDR -> [{ACC_ADDR_SAVE_ADDR}]={dp.acc_addr}"
-            )
+            self._log_slot_acc = f"ISR save ACC_ADDR -> [{ACC_ADDR_SAVE_ADDR}]={dp.acc_addr}"
         # NZVC
         elif s == 7:
             dp.signal_latch_ar(NZVC_SAVE_ADDR)
@@ -288,9 +279,7 @@ class ControlUnit:
             raise StopIteration("HALT")
 
         if op == Opcode.LOAD_IMM:
-            dp.signal_alu_op(
-                DataPath.ALU_PASS_R, DataPath.R_FROM_IR, ir_arg=arg, update_vc=False
-            )
+            dp.signal_alu_op(DataPath.ALU_PASS_R, DataPath.R_FROM_IR, ir_arg=arg, update_vc=False)
             self.signal_step_reset()
             return
         if op == Opcode.INC_SP:
@@ -422,9 +411,7 @@ class ControlUnit:
             dp.signal_latch_acc_sh_from_acc()
             dp.signal_latch_sh_addr(addr)
             dp.signal_latch_acc_addr(DataPath.AA_SH_ADDR)
-            self._log_slot_shadow = (
-                f"parallel: mem[{dp.ar}]<-AC_SH || store->[{addr}]={dp.acc}"
-            )
+            self._log_slot_shadow = f"parallel: mem[{dp.ar}]<-AC_SH || store->[{addr}]={dp.acc}"
             self.signal_step_reset()
             return
 
@@ -455,12 +442,7 @@ class ControlUnit:
     def _step_alu_bin(self, op, addr, s):
         dp = self.dp
         alu_op, upd_vc = self._ALU_BIN[op]
-        if (
-            self.superscalar
-            and s == 1
-            and dp.shadow_addr is not None
-            and dp.shadow_addr == addr
-        ):
+        if self.superscalar and s == 1 and dp.shadow_addr is not None and dp.shadow_addr == addr:
             dp.signal_alu_op(alu_op, DataPath.R_AC_SH, update_vc=upd_vc)
             self._log_slot_shadow = f"alu-shadow-forward [{addr}]"
             self.signal_step_reset()
@@ -539,9 +521,7 @@ class ControlUnit:
         elif s == 6:
             dp.signal_latch_dr_from_mem()
             dp.acc_addr = dp.dr
-            self._log_slot_acc = (
-                f"IRET ACC_ADDR <- [{ACC_ADDR_SAVE_ADDR}]={dp.acc_addr}"
-            )
+            self._log_slot_acc = f"IRET ACC_ADDR <- [{ACC_ADDR_SAVE_ADDR}]={dp.acc_addr}"
         elif s == 7:
             dp.signal_latch_ar(NZVC_SAVE_ADDR)
         elif s == 8:
@@ -603,9 +583,7 @@ class ControlUnit:
         )
 
         slot_a = self._log_slot_acc or ("(next) " + self._peek_next_opcode())
-        slot_b = (
-            f"  ||  SHADOW: {self._log_slot_shadow}" if self._log_slot_shadow else ""
-        )
+        slot_b = f"  ||  SHADOW: {self._log_slot_shadow}" if self._log_slot_shadow else ""
         line2 = f"  SLOT-A: {slot_a:<26s}{slot_b}"
 
         if sp < INITIAL_SP:
@@ -617,9 +595,7 @@ class ControlUnit:
                     extras.append(dp.data_memory[addr])
                 else:
                     break
-            extras_str = (
-                "  [" + "  ".join(f"{v:6d}" for v in extras) + "]" if extras else ""
-            )
+            extras_str = "  [" + "  ".join(f"{v:6d}" for v in extras) + "]" if extras else ""
             stack_line = f"  STACK:  TOS={tos:10d}{extras_str}"
         else:
             stack_line = "  STACK:  <empty>"
