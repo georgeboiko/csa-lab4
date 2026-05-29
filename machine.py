@@ -151,4 +151,4 @@ if __name__ == "__main__":
     )
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     assert len(args) == 3, "Использование: machine.py <code.bin> <memory.bin> <input.txt> [--debug] [--no-superscalar]"
-    main(*args, superscalar="--no-superscalar" not in sys.argv)
+    main(args[0], args[1], args[2], superscalar="--no-superscalar" not in sys.argv)

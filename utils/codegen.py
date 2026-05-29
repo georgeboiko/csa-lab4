@@ -12,7 +12,6 @@ from utils.ast_nodes import (
     FuncDefNode,
     IfNode,
     IsrDefNode,
-    List,
     LoopNode,
     Node,
     NumberNode,
@@ -56,7 +55,7 @@ class CodeGenerator:
         self.add_instruction(Opcode.LOAD_SP)
         self.add_instruction(Opcode.INC_SP)
 
-    def generate(self, ast: List[Node]):
+    def generate(self, ast: list[Node]):
         # Резервируем адреса в памяти данных под все перемеренные
         for node in ast:
             if isinstance(node, VariableDefNode):
@@ -70,7 +69,7 @@ class CodeGenerator:
             elif isinstance(node, IsrDefNode):
                 self.functions[node.name] = self.get_label("isr", node.name)
 
-        start_label = self.get_label("start", self.label_counter)
+        start_label = self.get_label("start", str(self.label_counter))
         self.add_instruction(Opcode.JUMP, start_label)
 
         # Компилируем тела функций и ISR
@@ -147,7 +146,7 @@ class CodeGenerator:
         elif isinstance(node, LoopNode):
             # Выполнять тело, пока stack.top() == 0; иначе - выход
             self.label_counter += 1
-            begin_label = self.get_label("loop_begin", self.label_counter)
+            begin_label = self.get_label("loop_begin", str(self.label_counter))
             self.add_temp_label(begin_label)
 
             for child in node.body:
@@ -158,9 +157,9 @@ class CodeGenerator:
 
         elif isinstance(node, IfNode):
             self.label_counter += 1
-            else_label = self.get_label("else", self.label_counter)
+            else_label = self.get_label("else", str(self.label_counter))
             self.label_counter += 1
-            end_label = self.get_label("endif", self.label_counter)
+            end_label = self.get_label("endif", str(self.label_counter))
 
             self.pop_to_acc()
 

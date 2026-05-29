@@ -55,7 +55,7 @@ class Parser:
         self.tokens = tokens
         self.pos = 0
 
-    def current_token(self) -> str:
+    def current_token(self) -> str | None:
         if self.pos < len(self.tokens):
             return self.tokens[self.pos]
         return None
@@ -89,10 +89,12 @@ class Parser:
         return nodes
 
     def parse_block(self) -> list[Node]:
-        nodes = []
+        nodes: list[Node] = []
 
         while self.current_token() is not None:
             token = self.current_token()
+            
+            assert token is not None
 
             if token in self.CLOSING_TOKENS:
                 break
