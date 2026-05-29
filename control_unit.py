@@ -310,8 +310,7 @@ class ControlUnit:
         dp = self.dp
         if self.superscalar and s == 1:
             if dp.shadow_addr is not None and dp.shadow_addr == addr:
-                dp.signal_alu_op(DataPath.ALU_PASS_R, DataPath.R_AC_SH,
-                                 update_vc=False)
+                dp.signal_latch_acc_from_shadow()
                 dp.acc_addr = addr
                 self._log_slot_shadow = f"shadow-forward [{addr}]"
                 self.signal_step_reset(); return

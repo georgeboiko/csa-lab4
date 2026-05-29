@@ -198,7 +198,6 @@ class DataPath:
 
     def signal_latch_acc_from_shadow(self):
         self.acc = to_signed32(self.ac_shadow)
-        self._set_nz(self.acc)
 
 
     def signal_inc_sp(self): self.sp += 4
