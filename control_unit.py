@@ -1,4 +1,3 @@
-from datapath import DataPath
 from config import (
     ACC_ADDR_SAVE_ADDR,
     ACC_SAVE_ADDR,
@@ -9,15 +8,16 @@ from config import (
     NZVC_SAVE_ADDR,
     OUTPUT_ADDR,
 )
-
+from datapath import DataPath
 from isa import (
-    Opcode,
+    ARG_MASK,
     INSTRUCTIONS_WITH_ARG,
     INSTR_BYTES,
-    ARG_MASK,
+    Opcode,
     binary_to_opcode,
     to_signed24,
 )
+from typing import ClassVar
 
 
 class ControlUnit:
@@ -51,7 +51,7 @@ class ControlUnit:
         }
     )
 
-    _ALU_BIN = {
+    _ALU_BIN: ClassVar[dict] = {
         Opcode.ADD: (DataPath.ALU_ADD, True),
         Opcode.SUB: (DataPath.ALU_SUB, True),
         Opcode.MUL: (DataPath.ALU_MUL, True),
@@ -62,7 +62,7 @@ class ControlUnit:
         Opcode.XOR: (DataPath.ALU_XOR, False),
     }
 
-    _ALU_UN = {
+    _ALU_UN: ClassVar[dict] = {
         Opcode.INC: DataPath.ALU_INC,
         Opcode.DEC: DataPath.ALU_DEC,
         Opcode.NOT: DataPath.ALU_NOT,

@@ -3,9 +3,9 @@ from utils.ast_nodes import *
 
 class Parser:
 
-    CLOSING_TOKENS = [";", "until", "else", "endif"]
+    CLOSING_TOKENS = (";", "until", "else", "endif")
 
-    RESERVED_WORDS = [
+    RESERVED_WORDS = (
         ":",
         ";",
         ":isr",
@@ -39,7 +39,7 @@ class Parser:
         "!",
         "'",
         "execute",
-    ]
+    )
 
     def __init__(self, tokens: List[str]):
         self.tokens = tokens

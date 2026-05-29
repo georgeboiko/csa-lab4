@@ -1,13 +1,25 @@
-from isa import Opcode
-from utils.ast_nodes import *
 from config import (
+    DATA_MEMORY_SIZE,
+    INPUT_ADDR,
     IVT_INPUT_ADDR,
+    NZVC_SAVE_ADDR,
+    OUTPUT_ADDR,
     TEMP0_ADDR,
     TEMP1_ADDR,
-    INPUT_ADDR,
-    OUTPUT_ADDR,
-    NZVC_SAVE_ADDR,
-    DATA_MEMORY_SIZE,
+)
+from isa import Opcode
+from utils.ast_nodes import (
+    FuncDefNode,
+    IfNode,
+    IsrDefNode,
+    List,
+    LoopNode,
+    Node,
+    NumberNode,
+    StringNode,
+    TickNode,
+    VariableDefNode,
+    WordNode,
 )
 
 
