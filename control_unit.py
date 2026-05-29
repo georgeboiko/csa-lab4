@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from config import (
     ACC_ADDR_SAVE_ADDR,
     ACC_SAVE_ADDR,
@@ -11,13 +13,12 @@ from config import (
 from datapath import DataPath
 from isa import (
     ARG_MASK,
-    INSTRUCTIONS_WITH_ARG,
     INSTR_BYTES,
+    INSTRUCTIONS_WITH_ARG,
     Opcode,
     binary_to_opcode,
     to_signed24,
 )
-from typing import ClassVar
 
 
 class ControlUnit:
