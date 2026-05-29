@@ -31,16 +31,20 @@ def simulation(
 ) -> tuple[list[int], int]:
     dp = DataPath(data_memory)
     cu = ControlUnit(code, dp, superscalar=superscalar)
-    logger.debug("Superscalar mode: %s", "ON" if superscalar else "OFF")
+
+    trace_buffer = []
+
+    trace_buffer.append(f"Superscalar mode: {'ON' if superscalar else 'OFF'}")
 
     # Читаем адрес ISR из таблицы векторов прерываний (mem[IVT_INPUT_ADDR]).
     isr_addr: int | None = dp.data_memory[IVT_INPUT_ADDR] or None
     if isr_addr is not None:
         cu.enable_interrupts()
-        logger.debug("Trap mode: ISR addr=%d (from IVT[0])", isr_addr)
+        trace_buffer.append(f"Trap mode: ISR addr={isr_addr} (from IVT[0])")
 
     _SEP = "─" * 72
     logger.debug("%s\n%s", _SEP, cu)
+
     try:
         while cu.current_tick() < limit:
             if (
@@ -53,19 +57,17 @@ def simulation(
                 sched_tick, char = input_schedule.pop(0)
                 dp.data_memory[INPUT_ADDR] = char
                 ch = chr(char) if 32 <= char < 127 else f"\\x{char:02x}"
-                logger.debug(
-                    "  [TRAP] tick=%d (scheduled=%d) char=%d (%r) -> mem[%d], ISR@%d",
-                    cu.current_tick(),
-                    sched_tick,
-                    char,
-                    ch,
-                    INPUT_ADDR,
-                    isr_addr,
+                trace_buffer.append(
+                    f"  [TRAP] tick={cu.current_tick()} "
+                    f"(scheduled={sched_tick}) "
+                    f"char={char} ({ch!r}) "
+                    f"-> mem[{INPUT_ADDR}], ISR@{isr_addr}"
                 )
+
                 cu.trigger_interrupt()
 
             cu.process_next_tick()
-            logger.debug("%s\n%s", _SEP, cu)
+            trace_buffer.append(f"{_SEP}\n{cu}")
     except EOFError:
         logger.warning("Input buffer is empty!")
     except StopIteration:
@@ -73,6 +75,8 @@ def simulation(
 
     if cu.current_tick() >= limit:
         logger.warning("Limit exceeded! PC=%d", cu.pc)
+
+    logger.debug("\n".join(trace_buffer))
 
     logger.info("output_buffer: %s", repr(cu.dp.output_buffer))
 
