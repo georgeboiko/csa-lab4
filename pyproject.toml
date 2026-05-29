@@ -18,24 +18,20 @@ select = [
   "SIM",           # simplify
   "RUF",           # ruff specific
 ]
-ignore = [
-  "E501",   # line too long: schemes/comments are intentionally wide
-  "E741",   # ambiguous variable names (l, I) used in compiler tables
-  "F403",   # `from X import *` used in isa/config glue
-  "F405",   # may be undefined from `import *` (same reason)
-  "B008",   # function call in argument defaults (Forth codegen ok)
-  "SIM108", # ternary instead of if/else (clarity)
-]
 
-[tool.ruff.lint.per-file-ignores]
-"control_unit.py" = ["E712"]   # explicit `== True` / `== False` for hardware flags
+ignore = [
+	"RUF001", # ambiguous unicode in strings
+	"RUF002", # ambiguous unicode in docstrings
+	"RUF003", # ambiguous unicode in comments
+]
 
 [tool.mypy]
 python_version = "3.10"
-ignore_missing_imports = true
-warn_unused_ignores = true
-no_implicit_optional = true
 check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+strict_equality = true
 exclude = "^(tests/|venv/|\\.venv/|__pycache__/)"
 
 [tool.pytest.ini_options]
