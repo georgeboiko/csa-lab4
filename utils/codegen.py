@@ -1,33 +1,26 @@
 from isa import Opcode
 from utils.ast_nodes import *
+from config import (
+    IVT_INPUT_ADDR,
+    TEMP0_ADDR,
+    TEMP1_ADDR,
+    INPUT_ADDR,
+    OUTPUT_ADDR,
+    NZVC_SAVE_ADDR,
+    DATA_MEMORY_SIZE,
+)
+
 
 class CodeGenerator:
     """
     Codegen обходит AST и генерирует список инструкций + память данных.
-
-    Память данных:
-      0 — адрес ISR ввода (0 если нет обработчика прерывания)
-      1 — TEMP0
-      2 — TEMP1
-      3 — INPUT
-      4 — OUTPUT
-      5 — ISR_ACC - сохранение ACC при входе в ISR (восстанавливается при IRET)
-      6..N   — переменные пользователя, строки
-      ..8191 — стек данных (растёт вниз)
     """
-
-    IVT_INPUT_ADDR = 0
-    TEMP0_ADDR     = 1
-    TEMP1_ADDR     = 2
-    INPUT_ADDR     = 3
-    OUTPUT_ADDR    = 4
-    ISR_ACC_ADDR   = 5
 
     def __init__(self):
         self.code = []
-        self.data_memory = [0] * 8192
+        self.data_memory = [0] * DATA_MEMORY_SIZE
 
-        self.data_ptr = 6
+        self.data_ptr = NZVC_SAVE_ADDR + 1
 
         self.variables = {}
         self.functions = {}
@@ -92,7 +85,7 @@ class CodeGenerator:
             if isinstance(node, IsrDefNode):
                 label = self.get_label("isr", node.name)
                 if label in self._resolved_labels:
-                    self.data_memory[self.IVT_INPUT_ADDR] = self._resolved_labels[label]
+                    self.data_memory[IVT_INPUT_ADDR] = self._resolved_labels[label]
                 break
 
         return self.code, self.data_memory
@@ -234,32 +227,32 @@ class CodeGenerator:
 
         elif word == "swap":
             self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
+            self.add_instruction(Opcode.STORE, TEMP0_ADDR)
             self.add_instruction(Opcode.INC_SP)
             self.add_instruction(Opcode.LOAD_SP)
             self.add_instruction(Opcode.DEC_SP)
             self.add_instruction(Opcode.STORE_SP)
             self.add_instruction(Opcode.INC_SP)
-            self.add_instruction(Opcode.LOAD, self.TEMP0_ADDR)
+            self.add_instruction(Opcode.LOAD, TEMP0_ADDR)
             self.add_instruction(Opcode.STORE_SP)
             self.add_instruction(Opcode.DEC_SP)
 
         elif word == "rot":
             self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
+            self.add_instruction(Opcode.STORE, TEMP0_ADDR)
             self.add_instruction(Opcode.INC_SP)
             self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.STORE, self.TEMP1_ADDR)
+            self.add_instruction(Opcode.STORE, TEMP1_ADDR)
             self.add_instruction(Opcode.INC_SP)
             self.add_instruction(Opcode.LOAD_SP)
             self.add_instruction(Opcode.DEC_SP)
             self.add_instruction(Opcode.DEC_SP)
             self.add_instruction(Opcode.STORE_SP)
             self.add_instruction(Opcode.INC_SP)
-            self.add_instruction(Opcode.LOAD, self.TEMP0_ADDR)
+            self.add_instruction(Opcode.LOAD, TEMP0_ADDR)
             self.add_instruction(Opcode.STORE_SP)
             self.add_instruction(Opcode.INC_SP)
-            self.add_instruction(Opcode.LOAD, self.TEMP1_ADDR)
+            self.add_instruction(Opcode.LOAD, TEMP1_ADDR)
             self.add_instruction(Opcode.STORE_SP)
             self.add_instruction(Opcode.DEC_SP)
             self.add_instruction(Opcode.DEC_SP)
@@ -280,19 +273,19 @@ class CodeGenerator:
 
         elif word == "!":
             self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
+            self.add_instruction(Opcode.STORE, TEMP0_ADDR)
             self.add_instruction(Opcode.INC_SP)
             self.add_instruction(Opcode.LOAD_SP)
-            self.add_instruction(Opcode.STORE_IND, self.TEMP0_ADDR)
+            self.add_instruction(Opcode.STORE_IND, TEMP0_ADDR)
             self.add_instruction(Opcode.INC_SP)
 
         elif word == "emit":
             self.add_instruction(Opcode.LOAD_SP)
             self.add_instruction(Opcode.INC_SP)
-            self.add_instruction(Opcode.STORE, self.OUTPUT_ADDR)
+            self.add_instruction(Opcode.STORE, OUTPUT_ADDR)
 
         elif word == "key":
-            self.add_instruction(Opcode.LOAD, self.INPUT_ADDR)
+            self.add_instruction(Opcode.LOAD, INPUT_ADDR)
             self.push_acc()
 
         elif word == "execute":
@@ -305,10 +298,10 @@ class CodeGenerator:
 
     def math_helper(self, operation: Opcode):
         self.add_instruction(Opcode.LOAD_SP)
-        self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
+        self.add_instruction(Opcode.STORE, TEMP0_ADDR)
         self.add_instruction(Opcode.INC_SP)
         self.add_instruction(Opcode.LOAD_SP)
-        self.add_instruction(operation, self.TEMP0_ADDR)
+        self.add_instruction(operation, TEMP0_ADDR)
         self.add_instruction(Opcode.STORE_SP)
 
     def compare_helper(self, jump_opcode: Opcode):
@@ -318,10 +311,10 @@ class CodeGenerator:
         end_lbl  = self.get_label("cmp_end",  str(self.label_counter))
 
         self.add_instruction(Opcode.LOAD_SP)
-        self.add_instruction(Opcode.STORE, self.TEMP0_ADDR)
+        self.add_instruction(Opcode.STORE, TEMP0_ADDR)
         self.add_instruction(Opcode.INC_SP)
         self.add_instruction(Opcode.LOAD_SP)
-        self.add_instruction(Opcode.SUB, self.TEMP0_ADDR)
+        self.add_instruction(Opcode.SUB, TEMP0_ADDR)
 
         self.add_instruction(jump_opcode, true_lbl)
 
@@ -338,7 +331,7 @@ class CodeGenerator:
         """
         Линкер: разрешает символические метки в байтовые адреса.
         """
-        from isa import instr_size_bytes
+        from isa import INSTR_BYTES
 
         resolved_code = []
         labels_map: dict[str, int] = {}
@@ -350,7 +343,7 @@ class CodeGenerator:
             if op == "LABEL":
                 labels_map[instr["arg"]] = current_byte_addr
             else:
-                current_byte_addr += instr_size_bytes(op)
+                current_byte_addr += INSTR_BYTES
 
         # Второй проход: подставляем адреса в аргументы.
         for instr in self.code:
