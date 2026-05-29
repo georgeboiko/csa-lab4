@@ -1,16 +1,17 @@
-import os
-import tempfile
-import pytest
-import json
 import contextlib
 import io
+import json
 import logging
+import os
 import sys
+import tempfile
+
+import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from translator import main as translator_main
 from machine import main as machine_main
+from translator import main as translator_main
 
 
 @pytest.mark.golden_test("*.yml")
@@ -46,7 +47,8 @@ def test_golden(golden, caplog):
         # Filter log to avoid huge files, maybe just keep the first 100 and last 100 lines
         log_lines = caplog.text.splitlines()
         if len(log_lines) > 200:
-            log_text = "\n".join(log_lines[:100] + ["..."] + log_lines[-100:])
+            log_text = "\n".join([*log_lines[:100], "...", *log_lines[-100:]])
+
         else:
             log_text = "\n".join(log_lines)
 

@@ -1,9 +1,11 @@
-import os, sys, re
+import os
+import re
+import sys
 
-from utils.parser import Parser
+from isa import to_bytes, to_bytes_memory, to_hex, to_hex_memory, write_json
 from utils.codegen import CodeGenerator
+from utils.parser import Parser
 
-from isa import *
 
 def parse_tokens(source):
     """
@@ -12,14 +14,14 @@ def parse_tokens(source):
     и разбиение на токены:
         1) Слова - любой набор символов без пробелов
         2) Строки - кавычка + любые символы без кавычек + кавычка
-    
     """
 
-    source = re.sub(r'\\.*', '', source)
-    source = re.sub(r'\(.*?\)', '', source, flags=re.DOTALL)
+    source = re.sub(r"\\.*", "", source)
+    source = re.sub(r"\(.*?\)", "", source, flags=re.DOTALL)
 
     token_pattern = re.compile(r'"[^"]*"|\S+')
     return token_pattern.findall(source)
+
 
 def parse_syntax(tokens):
     """
@@ -70,6 +72,9 @@ def main(source, target, memory_target):
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 4, "Wrong arguments: translator.py <input_file> <target_file> <memory_file>"
+    assert (
+        len(sys.argv) == 4
+    ), "Wrong arguments: translator.py <input_file> <target_file> <memory_file>"
     _, source, target, memory_target = sys.argv
     main(source, target, memory_target)
+

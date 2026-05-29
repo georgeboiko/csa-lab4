@@ -1,5 +1,5 @@
-from enum import Enum
 import json
+from enum import Enum
 
 """
 ISA - инструкции фиксированной длины 32 бита.

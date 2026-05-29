@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 
 
 class Node:
@@ -30,24 +30,24 @@ class VariableDefNode(Node):
 class FuncDefNode(Node):
     name: str
     is_recursive: bool
-    body: List[Node]
+    body: list[Node]
 
 
 @dataclass
 class IsrDefNode(Node):
     name: str
-    body: List[Node]
+    body: list[Node]
 
 
 @dataclass
 class IfNode(Node):
-    true_branch: List[Node]
-    false_branch: Optional[List[Node]]
+    true_branch: list[Node]
+    false_branch: Optional[list[Node]]
 
 
 @dataclass
 class LoopNode(Node):
-    body: List[Node]
+    body: list[Node]
 
 
 @dataclass

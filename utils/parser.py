@@ -1,4 +1,15 @@
-from utils.ast_nodes import *
+from utils.ast_nodes import (
+    FuncDefNode,
+    IfNode,
+    IsrDefNode,
+    LoopNode,
+    Node,
+    NumberNode,
+    StringNode,
+    TickNode,
+    VariableDefNode,
+    WordNode,
+)
 
 
 class Parser:
@@ -41,7 +52,7 @@ class Parser:
         "execute",
     )
 
-    def __init__(self, tokens: List[str]):
+    def __init__(self, tokens: list[str]):
         self.tokens = tokens
         self.pos = 0
 
@@ -74,7 +85,7 @@ class Parser:
         self.advance()
         return name
 
-    def parse(self) -> List[Node]:
+    def parse(self) -> list[Node]:
         nodes = self.parse_block()
 
         if self.current_token() is not None:
@@ -84,7 +95,7 @@ class Parser:
 
         return nodes
 
-    def parse_block(self) -> List[Node]:
+    def parse_block(self) -> list[Node]:
         nodes = []
 
         while self.current_token() is not None:
