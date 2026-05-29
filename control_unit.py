@@ -1,5 +1,15 @@
 from datapath import DataPath
-from config import *
+from config import (
+    ACC_ADDR_SAVE_ADDR,
+    ACC_SAVE_ADDR,
+    INITIAL_RSP,
+    INITIAL_SP,
+    INPUT_ADDR,
+    IVT_INPUT_ADDR,
+    NZVC_SAVE_ADDR,
+    OUTPUT_ADDR,
+)
+
 from isa import (
     Opcode,
     INSTRUCTIONS_WITH_ARG,

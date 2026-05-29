@@ -1,4 +1,13 @@
-from config import *
+from config import (
+    DATA_MEMORY_SIZE,
+    INITIAL_RSP,
+    INITIAL_SP,
+    INPUT_ADDR,
+    MASK32,
+    OUTPUT_ADDR,
+    SIGN32,
+    to_signed32,
+)
 
 N_BIT = 0b1000
 Z_BIT = 0b0100
