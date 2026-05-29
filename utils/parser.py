@@ -93,7 +93,7 @@ class Parser:
 
         while self.current_token() is not None:
             token = self.current_token()
-            
+
             assert token is not None
 
             if token in self.CLOSING_TOKENS:
