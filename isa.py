@@ -2,10 +2,10 @@ from enum import Enum
 import json
 
 """
-ISA - инструкции переменной длины:
-  - Инструкция без аргумента: 1 байт = опкод.
-  - Инструкция с аргументом : 5 байт = опкод + 32-битный операнд.
-Память поддерживает байтовую адресацию.
+ISA - инструкции фиксированной длины 32 бита.
+  - Биты 31..24 - опкод.
+  - Биты 23..0  - знаковый аргумент (24 бита).
+Память команд поддерживает побайтовую адресацию, PC всегда инкрементируется на 4.
 """
 
 class Opcode(str, Enum):
@@ -73,14 +73,9 @@ INSTRUCTIONS_WITH_ARG = {
     Opcode.CALL,
 }
 
-OPCODE_BYTES = 1
-ARG_BYTES = 4
-INSTR_BYTES_MAX = OPCODE_BYTES + ARG_BYTES
-
-
-def instr_size_bytes(opcode: "Opcode") -> int:
-    """Длина инструкции в байтах с учётом наличия аргумента."""
-    return INSTR_BYTES_MAX if opcode in INSTRUCTIONS_WITH_ARG else OPCODE_BYTES
+INSTR_BYTES = 4
+ARG_MASK = 0x00FFFFFF
+ARG_SIGN = 0x00800000
 
 
 def to_signed32(num: int) -> int:
@@ -89,29 +84,38 @@ def to_signed32(num: int) -> int:
         return num - 0x100000000
     return num
 
-def to_arg32(num: int) -> int:
-    return num & 0xFFFFFFFF
+
+def to_signed24(num: int) -> int:
+    num &= ARG_MASK
+    if num & ARG_SIGN:
+        return num - (1 << 24)
+    return num
+
+
+def to_arg24(num: int) -> int:
+    return num & ARG_MASK
+
+
+def encode_instr(opcode: "Opcode", arg: int = 0) -> int:
+    """Закодировать инструкцию в 32-битное слово."""
+    op_val = opcode_to_binary[opcode] & 0xFF
+    return (op_val << 24) | to_arg24(arg)
 
 
 def to_bytes(code: list[dict]) -> bytes:
     """
-    Преобразует список инструкций в бинарный формат.
+    Преобразует список инструкций в бинарный формат (по 4 байта на инструкцию).
     """
     binary_bytes = bytearray()
 
     for instr in code:
-        opcode = instr["opcode"]
-        opcode_val = opcode_to_binary[opcode]
-        binary_bytes.append(opcode_val & 0xFF)
-
-        if opcode in INSTRUCTIONS_WITH_ARG:
-            arg_val = to_arg32(instr.get("arg", 0))
-            binary_bytes.extend([
-                (arg_val >> 24) & 0xFF,
-                (arg_val >> 16) & 0xFF,
-                (arg_val >> 8) & 0xFF,
-                arg_val & 0xFF,
-            ])
+        word = encode_instr(instr["opcode"], instr.get("arg", 0))
+        binary_bytes.extend([
+            (word >> 24) & 0xFF,
+            (word >> 16) & 0xFF,
+            (word >> 8) & 0xFF,
+            word & 0xFF,
+        ])
 
     return bytes(binary_bytes)
 
@@ -120,15 +124,15 @@ def to_bytes_memory(memory: list[int]) -> bytes:
     Преобразует память данных в бинарный формат.
     """
     binary_bytes = bytearray()
-    
-    for val in memory: 
+
+    for val in memory:
         binary_bytes.extend([
             (val >> 24) & 0xFF,
             (val >> 16) & 0xFF,
             (val >> 8) & 0xFF,
             val & 0xFF
         ])
-        
+
     return bytes(binary_bytes)
 
 def to_hex_memory(memory: list[int]) -> str:
@@ -158,61 +162,54 @@ def to_hex(code: list[dict]) -> str:
 
     i = 0
     while i < len(binary_code):
-        opcode_bin = binary_code[i]
+        if i + INSTR_BYTES > len(binary_code):
+            break
+        word = (
+            (binary_code[i] << 24)
+            | (binary_code[i + 1] << 16)
+            | (binary_code[i + 2] << 8)
+            | binary_code[i + 3]
+        )
+        opcode_bin = (word >> 24) & 0xFF
         opcode = binary_to_opcode.get(opcode_bin)
         if opcode is None:
-            result.append(f"{i:04} - {opcode_bin:02X} - UNKNOWN_{opcode_bin:02X}")
-            i += 1
+            result.append(f"{i:04} - {word:08X} - UNKNOWN_{opcode_bin:02X}")
+            i += INSTR_BYTES
             continue
 
         if opcode in INSTRUCTIONS_WITH_ARG:
-            if i + INSTR_BYTES_MAX > len(binary_code):
-                break
-            arg_unsigned = (
-                (binary_code[i + 1] << 24)
-                | (binary_code[i + 2] << 16)
-                | (binary_code[i + 3] << 8)
-                | binary_code[i + 4]
-            )
-            arg_bin = to_signed32(arg_unsigned)
+            arg_bin = to_signed24(word & ARG_MASK)
             mnemonic = f"{opcode.value} {arg_bin}"
-            result.append(f"{i:04} - {opcode_bin:02X}{arg_unsigned:08X} - {mnemonic}")
-            i += INSTR_BYTES_MAX
         else:
-            result.append(f"{i:04} - {opcode_bin:02X}         - {opcode.value}")
-            i += OPCODE_BYTES
+            mnemonic = opcode.value
+        result.append(f"{i:04} - {word:08X} - {mnemonic}")
+        i += INSTR_BYTES
 
     return "\n".join(result)
 
 
 def from_bytes(binary_code: bytes) -> list[dict]:
     """
-    Десериализация бинарника обратно в список словарей инструкций
-    (для отладочного вывода / unit-тестов). Полностью обходит variable-length
-    кодирование.
+    Десериализация бинарника обратно в список словарей инструкций.
     """
     structured_code: list[dict] = []
     i = 0
-    while i < len(binary_code):
-        opcode_bin = binary_code[i]
+    while i + INSTR_BYTES <= len(binary_code):
+        word = (
+            (binary_code[i] << 24)
+            | (binary_code[i + 1] << 16)
+            | (binary_code[i + 2] << 8)
+            | binary_code[i + 3]
+        )
+        opcode_bin = (word >> 24) & 0xFF
         opcode = binary_to_opcode.get(opcode_bin)
         if opcode is None:
-            i += 1
+            i += INSTR_BYTES
             continue
         instr: dict = {"opcode": opcode}
         if opcode in INSTRUCTIONS_WITH_ARG:
-            if i + INSTR_BYTES_MAX > len(binary_code):
-                break
-            arg_unsigned = (
-                (binary_code[i + 1] << 24)
-                | (binary_code[i + 2] << 16)
-                | (binary_code[i + 3] << 8)
-                | binary_code[i + 4]
-            )
-            instr["arg"] = to_signed32(arg_unsigned)
-            i += INSTR_BYTES_MAX
-        else:
-            i += OPCODE_BYTES
+            instr["arg"] = to_signed24(word & ARG_MASK)
+        i += INSTR_BYTES
         structured_code.append(instr)
     return structured_code
 

@@ -6,30 +6,6 @@
 - DataPath - тракт данных: память данных, аккумулятор, стек данных, IO
 - ControlUnit - hardwired блок управления: память команд, PC, стек возвратов
 - Цикл симуляции
-
-Архитектура:
-  - Аккумуляторная
-  - Гарвардская (раздельные память команд и данных)
-  - Hardwired control unit
-  - Tick-accurate моделирование
-  - Trap-based IO: прерывания по расписанию, ISR-адрес в mem[IVT_INPUT_ADDR]
-  - Memory-mapped IO: addr 3 = INPUT, addr 4 = OUTPUT
-  - Аппаратный стек возвратов
-  - 2x суперскалярность по схеме AC_SHADOW:
-      deferred store - STORE откладывается: ACC <-> AC_SHADOW, без записи в память
-      dead load elim - LOAD addr пропускается если shadow_addr == addr (swap вместо чтения)
-      parallel flush - когда shadow занят и нужен новый STORE: оба регистра пишутся
-                       в память одновременно (1 такт = 2 записи)
-
-Память данных:
-    0 — адрес ISR ввода (0 если нет обработчика прерывания)
-    1 — TEMP0
-    2 — TEMP1
-    3 — INPUT
-    4 — OUTPUT
-    5 — ISR_ACC - сохранение ACC при входе в ISR (восстанавливается при IRET)
-    6..N   — переменные пользователя, строки
-    ..8191 — стек данных (растёт вниз)
 """
 
 import json
@@ -60,17 +36,12 @@ def simulation(
     logger.debug("%s\n%s", _SEP, cu)
     try:
         while cu.current_tick() < limit:
-            # Trap-based IO: проверяем расписание прерываний.
-            # Прерывание вызывается когда:
-            #   - наступил запланированный такт
-            #   - прерывания разрешены
-            #   - нет уже ожидающего прерывания
             if (
                 isr_addr is not None
                 and input_schedule
                 and cu.current_tick() >= input_schedule[0][0]
                 and cu._interrupts_enabled
-                and not cu._interrupt_pending
+                and not cu._irq
             ):
                 sched_tick, char = input_schedule.pop(0)
                 dp.data_memory[INPUT_ADDR] = char
