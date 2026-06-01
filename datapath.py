@@ -1,6 +1,5 @@
 from config import (
     DATA_MEMORY_SIZE,
-    INITIAL_RSP,
     INITIAL_SP,
     INPUT_ADDR,
     MASK32,
@@ -31,17 +30,16 @@ class DataPath:
     R_FROM_IR, R_AC_SH, R_DR = "from_ir", "ac_sh", "dr"
 
     # sel_data
-    D_ACC, D_AC_SH, D_SH_ADDR, D_ACC_ADDR, D_NZVC, D_FROM_PC = (
+    D_ACC, D_AC_SH, D_ACC_ADDR, D_NZVC, D_FROM_PC = (
         "acc",
         "ac_sh",
-        "sh_addr",
         "acc_addr",
         "nzvc",
         "from_pc",
     )
 
     # sel_acc_addr
-    AA_AR, AA_SH_ADDR, AA_NONE = "ar", "sh_addr", "none"
+    AA_AR, AA_SH_ADDR = "ar", "sh_addr"
 
     def __init__(self, data_memory):
         self.data_memory = list(data_memory)
@@ -52,11 +50,12 @@ class DataPath:
         self.ar = 0
         self.dr = 0
         self.sp = INITIAL_SP
-        self.rsp = INITIAL_RSP
 
         self.ac_shadow = 0
-        self.acc_addr = None
-        self.shadow_addr = None
+        self.acc_addr = 0
+        self.shadow_addr = 0
+        self.acc_addr_valid = 0
+        self.shadow_addr_valid = 0
 
         self.nzvc = 0
         self._cu = None
@@ -86,11 +85,13 @@ class DataPath:
     def signal_latch_ar(self, value):
         self.ar = value
 
-    def signal_latch_dr_from_mem(self):
+    def signal_latch_dr(self):
         addr = self.ar
-        if self.shadow_addr is not None and addr == self.shadow_addr:
+
+        if self.shadow_addr_valid and addr == self.shadow_addr:
             self.dr = self.ac_shadow
             return
+
         if addr == INPUT_ADDR:
             val = self.data_memory[INPUT_ADDR]
             ch = chr(val) if 32 <= val < 127 else f"\\x{val:02x}"
@@ -109,9 +110,6 @@ class DataPath:
             val = self.nzvc
         elif sel_data == self.D_FROM_PC:
             val = to_signed32(from_pc_value)
-        elif sel_data == self.D_SH_ADDR:
-            self.data_memory[self.ar] = self.shadow_addr
-            return
         elif sel_data == self.D_ACC_ADDR:
             self.data_memory[self.ar] = self.acc_addr
             return
@@ -132,22 +130,20 @@ class DataPath:
             self.acc_addr = self.ar
         elif source == self.AA_SH_ADDR:
             self.acc_addr = self.shadow_addr
-        elif source == self.AA_NONE:
-            self.acc_addr = None
         else:
             raise ValueError(f"Unknown sel_acc_addr: {source}")
 
     def signal_latch_sh_addr(self, value):
         self.shadow_addr = value
 
+    def signal_latch_acc_addr_valid(self, value):
+        self.acc_addr_valid = value
+
+    def signal_latch_sh_addr_valid(self, value):
+        self.shadow_addr_valid = value
+
     def signal_latch_acc_sh_from_acc(self):
         self.ac_shadow = self.acc
-
-    def signal_latch_acc_sh_from_dr(self):
-        self.ac_shadow = to_signed32(self.dr or 0)
-
-    def signal_clear_acc_sh(self):
-        self.ac_shadow = 0
 
     def signal_alu_op(self, op, sel_alu_r=R_DR, ir_arg=0, update_vc=True):
         if sel_alu_r == self.R_FROM_IR:
@@ -208,22 +204,17 @@ class DataPath:
         self._set_nz(self.acc)
         if update_vc:
             self._set_vc(ov, cy)
-        self.acc_addr = None
+        self.signal_latch_acc_addr_valid(0)
 
     def signal_latch_acc_from_shadow(self):
         self.acc = to_signed32(self.ac_shadow)
+        self._set_nz(self.acc)
 
     def signal_inc_sp(self):
         self.sp += 4
 
     def signal_dec_sp(self):
         self.sp -= 4
-
-    def signal_inc_rsp(self):
-        self.rsp += 4
-
-    def signal_dec_rsp(self):
-        self.rsp -= 4
 
     def signal_clc(self):
         self.nzvc &= ~C_BIT
