@@ -18,16 +18,13 @@ class Opcode(str, Enum):
     STORE = "store"
     STORE_IND = "store_ind"
 
-    LOAD_SP = "load_sp"
-    STORE_SP = "store_sp"
-    INC_SP = "inc_sp"
-    DEC_SP = "dec_sp"
-
     SHIFTL = "shiftl"
     SHIFTR = "shiftr"
 
     ADD = "add"
+    ADD_IMM = "add_imm"
     SUB = "sub"
+    SUB_IMM = "sub_imm"
     MUL = "mul"
     DIV = "div"
     MOD = "mod"
@@ -72,7 +69,9 @@ INSTRUCTIONS_WITH_ARG = {
     Opcode.STORE,
     Opcode.STORE_IND,
     Opcode.ADD,
+    Opcode.ADD_IMM,
     Opcode.SUB,
+    Opcode.SUB_IMM,
     Opcode.MUL,
     Opcode.DIV,
     Opcode.MOD,

@@ -27,7 +27,7 @@ def simulation(
     code: bytes,
     data_memory: list[int],
     input_schedule: list[tuple[int, int]] | None = None,
-    limit: int = 10_000_000,
+    limit: int = 20_000_000,
     superscalar: bool = True,
 ) -> tuple[list[int], int]:
     dp = DataPath(data_memory)
