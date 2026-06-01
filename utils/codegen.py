@@ -160,7 +160,6 @@ class CodeGenerator:
         """
         n = len(nodes)
 
-
         # var @ number swap ! - сохранить number по адресу var
         if i + 4 < n:
             var_addr = self._is_var(nodes[i])
