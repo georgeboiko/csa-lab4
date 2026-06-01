@@ -302,7 +302,7 @@ class CodeGenerator:
 
         # dup @ - положить на стек данных значение по адресу
         if i + 1 < n and self._is_word(nodes[i], "dup") and self._is_word(nodes[i + 1], "@"):
-            self.load_sp() 
+            self.load_sp()
             self.add_instruction(Opcode.LOAD_ACC)
             self.push_acc()
             return 2
@@ -470,7 +470,7 @@ class CodeGenerator:
             self.add_instruction(Opcode.STORE, TEMP1_ADDR)
             self.add_instruction(Opcode.LOAD, DATA_SP_ADDR)
             self.add_instruction(Opcode.ADD_IMM, 8)
-            self.add_instruction(Opcode.LOAD_ACC) 
+            self.add_instruction(Opcode.LOAD_ACC)
             self.store_sp()
             self.add_instruction(Opcode.LOAD, DATA_SP_ADDR)
             self.add_instruction(Opcode.ADD_IMM, 4)

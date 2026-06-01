@@ -6,7 +6,9 @@ venv/
 *.bin
 *.hex
 *.txt
-run.sh
+*.sh
 tests/
 benchmark.py
 .DS_Store
+.mypy_cache
+.ruff_cache
