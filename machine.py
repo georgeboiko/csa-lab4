@@ -47,13 +47,11 @@ def simulation(
     _SEP = "─" * 72
     logger.debug("%s\n%s", _SEP, cu)
     try:
-        while cu.current_tick() < limit:
+         while cu.current_tick() < limit:
             if (
                 isr_addr is not None
                 and input_schedule
                 and cu.current_tick() >= input_schedule[0][0]
-                and cu._interrupts_enabled
-                and not cu._irq
             ):
                 sched_tick, char = input_schedule.pop(0)
                 dp.data_memory[INPUT_ADDR] = char
