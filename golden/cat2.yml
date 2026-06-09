@@ -30,17 +30,9 @@ source: |2
 
 input:
 - [10, 72]
-- [410, 101]
-- [810, 108]
-- [1300, 108]
-- [1700, 111]
-- [2010, 44]
-- [2410, 32]
-- [2810, 99]
-- [3210, 97]
-- [3610, 116]
-- [4010, 33]
-- [4500, 0]
+- [20, 101]
+- [30, 108]
+
 translator_output: |
   source LoC: 29 code instr: 129
 
@@ -48,11 +40,11 @@ machine_output: |
 machine_err: |2
 
   output: []
-  ticks: 28799
+  ticks: 25384
 
 log: |-
   INFO     config:machine.py:124 IVT[0]=12
-  INFO     config:machine.py:133 Loaded input schedule: [(10, 72), (410, 101), (810, 108), (1300, 108), (1700, 111), (2010, 44), (2410, 32), (2810, 99), (3210, 97), (3610, 116), (4010, 33), (4500, 0)]
+  INFO     config:machine.py:133 Loaded input schedule: [(10, 72), (20, 101), (30, 108)]
   DEBUG    config:machine.py:35 Superscalar mode: ON
   DEBUG    config:machine.py:45 Trap mode: ISR addr=12 (from IVT[0])
   DEBUG    config:machine.py:48 ────────────────────────────────────────────────────────────────────────
@@ -144,111 +136,111 @@ log: |-
   TICK:   20  PC:  512/S10  IR:call       ARG:       452  ACC:        4095  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
     SLOT-A: ISR save NZVC -> [9]=0b0000
     STACK:  TOS=         0
+  DEBUG    config:machine.py:55   [TRAP] tick=20 (scheduled=20) char=101 ('e') -> mem[4], ISR@12
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:   21  PC:  512/S11  IR:call       ARG:       452  ACC:        4095  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+  TICK:   21  PC:  512/S11  IR:call       ARG:       452  ACC:        4095  SP: 8187  NZVC=0b0000  EI=1 IRQ=1  
     SLOT-A: (next) halt               
     STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:   22  PC:  512/S12  IR:call       ARG:       452  ACC:        4095  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
-    SLOT-A: ISR DR<-IVT[0]=12         
+  TICK:   22  PC:  512/S12  IR:call       ARG:       452  ACC:        4095  SP: 8187  NZVC=0b0000  EI=1 IRQ=1  
   ...
-    STACK:  TOS=         0  [   480]
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  980  PC:  236/S2  IR:store      ARG:         1  ACC:        1002  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: store 1 S1                  ||  SHADOW: parallel: AR<-SH_ADDR=4091
-    STACK:  TOS=         0  [   480]
+  TICK:  978  PC:  488/S1  IR:load       ARG:         6  ACC:           0  SP: 8187  NZVC=0b0100  EI=1 IRQ=0  
+    SLOT-A: FETCH pc=484 word=0x01000006 -> IR=load
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  981  PC:  236/S0  IR:store      ARG:         1  ACC:        1002  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: store 1 S2                  ||  SHADOW: parallel: mem[4091]<-AC_SH || store->[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  979  PC:  488/S2  IR:load       ARG:         6  ACC:           0  SP: 8187  NZVC=0b0100  EI=1 IRQ=0  
+    SLOT-A: load 6 S1                   ||  SHADOW: shadow:[1]=0
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  982  PC:  240/S1  IR:load       ARG:         6  ACC:        1002  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: FETCH pc=236 word=0x01000006 -> IR=load
-    STACK:  TOS=         0  [   480]
+  TICK:  980  PC:  488/S3  IR:load       ARG:         6  ACC:           0  SP: 8187  NZVC=0b0100  EI=1 IRQ=0  
+    SLOT-A: load 6 S2                   ||  SHADOW: shadow:[1]=0
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  983  PC:  240/S2  IR:load       ARG:         6  ACC:        1002  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: load 6 S1                   ||  SHADOW: shadow:[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  981  PC:  488/S0  IR:load       ARG:         6  ACC:        4127  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: load 6 S3                   ||  SHADOW: shadow:[1]=0
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  984  PC:  240/S3  IR:load       ARG:         6  ACC:        1002  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: load 6 S2                   ||  SHADOW: shadow:[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  982  PC:  492/S1  IR:add_imm    ARG:         4  ACC:        4127  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: FETCH pc=488 word=0x09000004 -> IR=add_imm
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  985  PC:  240/S0  IR:load       ARG:         6  ACC:        4091  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: load 6 S3                   ||  SHADOW: shadow:[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  983  PC:  492/S0  IR:add_imm    ARG:         4  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: add_imm 4 S1                ||  SHADOW: shadow:[1]=0
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  986  PC:  244/S1  IR:add_imm    ARG:         4  ACC:        4091  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: FETCH pc=240 word=0x09000004 -> IR=add_imm
-    STACK:  TOS=         0  [   480]
+  TICK:  984  PC:  496/S1  IR:store      ARG:         6  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: FETCH pc=492 word=0x04000006 -> IR=store
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  987  PC:  244/S0  IR:add_imm    ARG:         4  ACC:        4095  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: add_imm 4 S1                ||  SHADOW: shadow:[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  985  PC:  496/S2  IR:store      ARG:         6  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: store 6 S1                  ||  SHADOW: parallel: AR<-SH_ADDR=1
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  988  PC:  248/S1  IR:load_acc   ARG:         0  ACC:        4095  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: FETCH pc=244 word=0x03000000 -> IR=load_acc
-    STACK:  TOS=         0  [   480]
+  TICK:  986  PC:  496/S0  IR:store      ARG:         6  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: store 6 S2                  ||  SHADOW: parallel: mem[1]<-AC_SH || store->[6]=4131
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  989  PC:  248/S2  IR:load_acc   ARG:         0  ACC:        4095  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: load_acc S1                 ||  SHADOW: shadow:[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  987  PC:  500/S1  IR:load       ARG:         1  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: FETCH pc=496 word=0x01000001 -> IR=load
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  990  PC:  248/S3  IR:load_acc   ARG:         0  ACC:        4095  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: load_acc S2                 ||  SHADOW: shadow:[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  988  PC:  500/S2  IR:load       ARG:         1  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: load 1 S1                   ||  SHADOW: shadow:[6]=4131
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  991  PC:  248/S0  IR:load_acc   ARG:         0  ACC:         108  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: load_acc S3                 ||  SHADOW: shadow:[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  989  PC:  500/S3  IR:load       ARG:         1  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: load 1 S2                   ||  SHADOW: shadow:[6]=4131
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  992  PC:  252/S1  IR:store_ind  ARG:         1  ACC:         108  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: FETCH pc=248 word=0x05000001 -> IR=store_ind
-    STACK:  TOS=         0  [   480]
+  TICK:  990  PC:  500/S0  IR:load       ARG:         1  ACC:           0  SP: 8187  NZVC=0b0100  EI=1 IRQ=0  
+    SLOT-A: load 1 S3                   ||  SHADOW: shadow:[6]=4131
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  993  PC:  252/S2  IR:store_ind  ARG:         1  ACC:         108  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: store_ind 1 S1              ||  SHADOW: shadow:[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  991  PC:  504/S1  IR:beqz       ARG:       472  ACC:           0  SP: 8187  NZVC=0b0100  EI=1 IRQ=0  
+    SLOT-A: FETCH pc=500 word=0x180001d8 -> IR=beqz
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  994  PC:  252/S3  IR:store_ind  ARG:         1  ACC:         108  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: store_ind 1 S2              ||  SHADOW: shadow:[1]=1002
-    STACK:  TOS=         0  [   480]
+  TICK:  992  PC:  472/S0  IR:beqz       ARG:       472  ACC:           0  SP: 8187  NZVC=0b0100  EI=1 IRQ=0  
+    SLOT-A: beqz 472 S1                 ||  SHADOW: shadow:[6]=4131
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  995  PC:  252/S4  IR:store_ind  ARG:         1  ACC:         108  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: store_ind 1 S3              ||  SHADOW: parallel: AR<-SH_ADDR=1
-    STACK:  TOS=         0  [   480]
+  TICK:  993  PC:  476/S1  IR:load       ARG:         6  ACC:           0  SP: 8187  NZVC=0b0100  EI=1 IRQ=0  
+    SLOT-A: FETCH pc=472 word=0x01000006 -> IR=load
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  996  PC:  252/S0  IR:store_ind  ARG:         1  ACC:         108  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: store_ind 1 S4              ||  SHADOW: parallel: mem[1]<-AC_SH || store->[1002]=108
-    STACK:  TOS=         0  [   480]
+  TICK:  994  PC:  476/S0  IR:load       ARG:         6  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: load 6 S1                   ||  SHADOW: shadow-forward [6]
+    STACK:  TOS=         0
   DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
-  TICK:  997  PC:  256/S1  IR:load       ARG:         6  ACC:         108  SP: 8183  NZVC=0b0000  EI=0 IRQ=0  
-    SLOT-A: FETCH pc=252 word=0x01000006 -> IR=load
-    STACK:  TOS=         0  [   480]
-  DEBUG    config:machine.py:55   [TRAP] tick=1300 (scheduled=1300) char=108 ('l') -> mem[4], ISR@12
-  DEBUG    config:machine.py:55   [TRAP] tick=1700 (scheduled=1700) char=111 ('o') -> mem[4], ISR@12
-  DEBUG    config:machine.py:55   [TRAP] tick=2010 (scheduled=2010) char=44 (',') -> mem[4], ISR@12
-  DEBUG    config:machine.py:55   [TRAP] tick=2410 (scheduled=2410) char=32 (' ') -> mem[4], ISR@12
-  DEBUG    config:machine.py:55   [TRAP] tick=2810 (scheduled=2810) char=99 ('c') -> mem[4], ISR@12
-  DEBUG    config:machine.py:55   [TRAP] tick=3210 (scheduled=3210) char=97 ('a') -> mem[4], ISR@12
-  DEBUG    config:machine.py:55   [TRAP] tick=3610 (scheduled=3610) char=116 ('t') -> mem[4], ISR@12
-  DEBUG    config:machine.py:55   [TRAP] tick=4010 (scheduled=4010) char=33 ('!') -> mem[4], ISR@12
-  DEBUG    config:machine.py:55   [TRAP] tick=4500 (scheduled=4500) char=0 ('\\x00') -> mem[4], ISR@12
+  TICK:  995  PC:  480/S1  IR:load_acc   ARG:         0  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: FETCH pc=476 word=0x03000000 -> IR=load_acc
+    STACK:  TOS=         0
+  DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
+  TICK:  996  PC:  480/S2  IR:load_acc   ARG:         0  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: load_acc S1                 ||  SHADOW: shadow:[6]=4131
+    STACK:  TOS=         0
+  DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
+  TICK:  997  PC:  480/S3  IR:load_acc   ARG:         0  ACC:        4131  SP: 8187  NZVC=0b0000  EI=1 IRQ=0  
+    SLOT-A: load_acc S2                 ||  SHADOW: shadow:[6]=4131
+    STACK:  TOS=         0
+  DEBUG    config:machine.py:69 ────────────────────────────────────────────────────────────────────────
+  TICK:  998  PC:  480/S0  IR:load_acc   ARG:         0  ACC:           0  SP: 8187  NZVC=0b0100  EI=1 IRQ=0  
+    SLOT-A: load_acc S3                 ||  SHADOW: shadow:[6]=4131
+    STACK:  TOS=         0
   INFO     config:machine.py:80 output_buffer: []
   INFO     config:machine.py:93 data memory dump (addr: value):
     [   0] = 12
-    [   1] = 472
+    [   1] = 512
     [   2] = 0
     [   3] = 0
-    [   4] = 0
+    [   4] = 108
     [   5] = 0
-    [   6] = 8191
-    [   7] = 0
-    [   8] = 1
-    [   9] = 4
+    [   6] = 8195
+    [   7] = 4095
+    [   8] = 6
+    [   9] = 0
     [  10] = 0
     [  11] = 0
     [  12] = 0
-    [  13] = 11
-    [  14] = 0
-    [  15] = 1
+    [  13] = 2
