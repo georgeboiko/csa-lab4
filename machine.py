@@ -61,7 +61,8 @@ def simulation(
                     INPUT_ADDR,
                     isr_addr,
                 )
-                cu.trigger_interrupt()
+                if cu._interrupts_enabled and not cu._isr_in_entry:
+                    cu.trigger_interrupt()
 
             cu.process_next_tick()
 
